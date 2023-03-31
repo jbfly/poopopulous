@@ -1,0 +1,29 @@
+{
+  "name": "poopopulous",
+  "version": "1.0.0",
+  "description": "",
+  "main": "game.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "parcel index.html",
+    "build": "parcel build index.html --out-dir dist"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jbfly/poopopulous.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jbfly/poopopulous/issues"
+  },
+  "homepage": "https://github.com/jbfly/poopopulous#readme",
+  "devDependencies": {
+    "parcel": "^2.8.3"
+  },
+  "dependencies": {
+    "phaser": "^3.55.2",
+    "phaser3-plugin-isometric": "^0.0.7"
+  }
+}
