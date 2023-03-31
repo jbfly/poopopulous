@@ -21,15 +21,40 @@ class IsoScene extends Phaser.Scene {
         // Create the grid
         this.grid = this.createGrid(mapSize, mapSize, tileSize);
 
-        // Add mouse events
-        this.input.on('pointermove', this.highlightGrid, this);
-        this.input.on('pointerdown', this.placeObject, this);
+        // Initialize an array to store poo objects
+        this.poos = [];
+
+        // Add spacebar key event listener
+        this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
     }
 
     // Update the game state, called every frame
     update() {
-        // Update grid square highlighting
-        this.highlightGrid(this.input.activePointer);
+        // Check if the spacebar is pressed
+        if (this.spaceKey.isDown) {
+            // Call the createPoo method to create a poo object
+            this.createPoo();
+        }
+
+        // Iterate through the poos array and update each poo object
+        this.poos.forEach(poo => {
+            // Update poo position based on its speed
+            poo.x += poo.speed;
+            poo.y += poo.speed;
+            poo.height += poo.speed;
+
+            // Check if the poo has reached the edge of the map
+            if (poo.x >= 10 * 38) {
+                // Reset the poo position and height
+                poo.x = 0;
+                poo.y = 0;
+                poo.height = 0;
+            }
+
+            // Update the poo's tile position and depth based on its new position
+            poo.tile.setPosition(poo.x, poo.y);
+            poo.tile.depth = poo.y + poo.height;
+        });
     }
 
     // Create a grid system
@@ -38,7 +63,7 @@ class IsoScene extends Phaser.Scene {
         for (let y = 0; y < rows; y++) {
             grid[y] = [];
             for (let x = 0; x < cols; x++) {
-                const tile = this.add.rectangle(x * size, y * size, size, size, 0xffffff, 0.1);
+                const tile = this.add.rectangle(x * size, y * size, size, size, 0xffffff, 0);
                 tile.setStrokeStyle(1, 0x000000, 0.5);
                 tile.setOrigin(0, 0);
                 grid[y][x] = {
@@ -50,34 +75,24 @@ class IsoScene extends Phaser.Scene {
         return grid;
     }
 
-    // Highlight the grid square under the mouse cursor
-    highlightGrid(pointer) {
-        const x = Math.floor(pointer.x / tileSize);
-        const y = Math.floor(pointer.y / tileSize);
+    // Create a poo object and add it to the poos array
+    createPoo() {
+        const randomX = Math.floor(Math.random() * mapSize);
+        const randomY = Math.floor(Math.random() * mapSize);
 
-        if (x >= 0 && x < mapSize && y >= 0 && y < mapSize) {
-            this.grid.forEach(row => {
-                row.forEach(cell => {
-                    cell.tile.setFillStyle(0xffffff, 0.1);
-                });
-            });
-            this.grid[y][x].tile.setFillStyle(0xffff00, 0.5);
-        }
-    }
+        const pooTile = this.add.text(randomX * tileSize, randomY * tileSize, '💩', { fontSize: '32px' });
+        pooTile.setOrigin(0, 0);
+        this.isoGroup.add(pooTile);
 
-    // Place an object on the grid
-    placeObject(pointer) {
-        const x = Math.floor(pointer.x / tileSize);
-        const y = Math.floor(pointer.y / tileSize);
+        const poo = {
+            x: randomX * tileSize,
+            y: randomY * tileSize,
+            height: 0,
+            speed: 2,
+            tile: pooTile
+        };
 
-        if (x >= 0 && x < mapSize && y >= 0 && y < mapSize) {
-            const cell = this.grid[y][x];
-            if (cell.object === null) {
-                const object = this.add.rectangle(x * tileSize, y * tileSize, tileSize, tileSize, 0xff0000, 0.5);
-                object.setOrigin(0, 0);
-                cell.object = object;
-            }
-        }
+        this.poos.push(poo);
     }
 }
 
