@@ -1,3 +1,6 @@
+import Phaser from 'phaser';
+import Phaser3Isometric from 'phaser3-plugin-isometric';
+
 const config = {
     type: Phaser.AUTO,
     width: 800,
