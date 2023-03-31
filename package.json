@@ -2,11 +2,10 @@
   "name": "poopopulous",
   "version": "1.0.0",
   "description": "",
-  "main": "game.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "parcel index.html",
-    "build": "parcel build index.html --out-dir dist"
+    "build": "parcel build index.html --dist-dir dist"
   },
   "repository": {
     "type": "git",
