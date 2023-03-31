@@ -16,8 +16,13 @@ const config = {
 
 const game = new Phaser.Game(config);
 
+const tileSize = 38;
+const mapSize = 10;
+
+
 function preload() {
     this.load.image('fluid', 'assets/fluid.png');
+    this.load.image('pipe', 'assets/pipe.png');
 }
 
 function create() {
@@ -27,6 +32,17 @@ function create() {
     this.iso = this.scene.plugins.get('IsoPlugin');
     this.iso.projector.origin.setTo(0.5, 0.3);
 
+    // Initialize the map
+this.map = [];
+for (let x = 0; x < mapSize; x++) {
+    this.map[x] = [];
+    for (let y = 0; y < mapSize; y++) {
+        this.map[x][y] = {
+            type: 'empty',
+            sprite: null
+        };
+    }
+}
     // Create slope
     const slopeSize = 10;
     const slopeHeight = 3;
@@ -37,11 +53,19 @@ function create() {
         }
     }
 
+    // Place a pipe tile at a given position
+       this.map[3][4] = {
+        type: 'pipe',
+        sprite: this.add.isoSprite(3 * tileSize, 4 * tileSize, 0, 'pipe', 0)
+    };
+
     // Fluid properties
     this.fluidSpeed = 1;
     this.fluidX = 0;
     this.fluidY = 0;
     this.fluidHeight = 0;
+    this.isoGroup.add(this.map[3][4].sprite);
+
 }
 
 function update() {
