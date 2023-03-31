@@ -14,17 +14,20 @@ class IsoScene extends Phaser.Scene {
 
     create() {
         this.isoGroup = this.add.group();
+        // Create a grid of size mapSize x mapSize
         this.grid = this.createGrid(mapSize, mapSize, tileSize);
 
         this.poos = [];
         this.spawnRate = 1000;
         this.lastSpawnTime = 0;
 
+        // Set the starting point for poo spawning as the center of the grid
         this.startPoint = {
             x: Math.floor(mapSize / 2),
             y: Math.floor(mapSize / 2)
         };
 
+        // Add pointermove event listener to highlight grid cells
         this.input.on('pointermove', (pointer) => {
             const { x, y } = this.getGridCoordinates(pointer.x, pointer.y);
             if (x >= 0 && x < mapSize && y >= 0 && y < mapSize) {
@@ -34,11 +37,13 @@ class IsoScene extends Phaser.Scene {
     }
 
     update(time) {
+        // Check if it's time to spawn a new poo
         if (time > this.lastSpawnTime + this.spawnRate) {
             this.createPoo();
             this.lastSpawnTime = time;
         }
 
+        // Update the poo height
         this.poos.forEach(poo => {
             if (poo.height < tileSize * 5) {
                 poo.height += poo.speed;
@@ -87,10 +92,17 @@ class IsoScene extends Phaser.Scene {
     }
 
     highlightGrid(x, y) {
-        if (this.grid[y][x].highlight) {
-            this.grid[y][x].highlight.destroy();
-        }
+        // Clear the previous highlight
+        this.grid.forEach(row => {
+            row.forEach(cell => {
+                if (cell.highlight) {
+                    cell.highlight.destroy();
+                    cell.highlight = null;
+                }
+            });
+        });
 
+        // Add a new highlight
         const highlight = this.add.image(x * tileSize, y * tileSize, 'highlight');
         highlight.setOrigin(0, 0);
         this.grid[y][x].highlight = highlight;
@@ -100,14 +112,14 @@ class IsoScene extends Phaser.Scene {
         const gridX = Math.floor(x / tileSize);
         const gridY = Math.floor(y / tileSize);
         return { x: gridX, y: gridY };
-    }
-}
-
-const config = {
-    type: Phaser.AUTO,
-    width: mapSize * tileSize,
-    height: mapSize * tileSize,
-    scene: IsoScene,
-    };
-    
-    const game = new Phaser.Game(config);
+        }
+        }
+        
+        const config = {
+        type: Phaser.AUTO,
+        width: mapSize * tileSize,
+        height: mapSize * tileSize,
+        scene: IsoScene,
+        };
+        
+        const game = new Phaser.Game(config);
