@@ -18,7 +18,7 @@ class IsoScene extends Phaser.Scene {
         this.grid = this.createGrid(mapSize, mapSize, tileSize);
 
         this.poos = [];
-        this.spawnRate = 1000;
+        this.spawnRate = 2400; // Adjust spawn rate to make it take about 2 minutes to fill the screen
         this.lastSpawnTime = 0;
 
         // Set the starting point for poo spawning as the center of the grid
@@ -26,6 +26,10 @@ class IsoScene extends Phaser.Scene {
             x: Math.floor(mapSize / 2),
             y: Math.floor(mapSize / 2)
         };
+
+        // Add the initial poo at the starting point
+        this.createPoo(this.startPoint.x, this.startPoint.y);
+        this.grid[this.startPoint.y][this.startPoint.x].object = 'poo';
 
         // Add pointermove event listener to highlight grid cells
         this.input.on('pointermove', (pointer) => {
@@ -39,19 +43,9 @@ class IsoScene extends Phaser.Scene {
     update(time) {
         // Check if it's time to spawn a new poo
         if (time > this.lastSpawnTime + this.spawnRate) {
-            this.createPoo();
+            this.expandPoo();
             this.lastSpawnTime = time;
         }
-
-        // Update the poo height
-        this.poos.forEach(poo => {
-            if (poo.height < tileSize * 5) {
-                poo.height += poo.speed;
-            }
-
-            poo.tile.setPosition(poo.x, poo.y - poo.height);
-            poo.tile.depth = poo.y + poo.height;
-        });
     }
 
     createGrid(rows, cols, size) {
@@ -72,10 +66,7 @@ class IsoScene extends Phaser.Scene {
         return grid;
     }
 
-    createPoo() {
-        const x = this.startPoint.x;
-        const y = this.startPoint.y;
-
+    createPoo(x, y) {
         const pooTile = this.add.text(x * tileSize, y * tileSize, '💩', { fontSize: '32px' });
         pooTile.setOrigin(0, 0);
         this.isoGroup.add(pooTile);
@@ -91,6 +82,44 @@ class IsoScene extends Phaser.Scene {
         this.poos.push(poo);
     }
 
+    expandPoo() {
+        // Generate all the possible directions for expansion
+        const directions = [
+            { x: -1, y: 0 },
+            { x: 1, y: 0 },
+            { x: 0, y: -1 },
+            { x: 0, y: 1 },
+        ];
+
+        // Find available grid cells to expand to
+        const availableCells = [];
+        this.poos.forEach(poo => {
+            const gridCoords = this.getGridCoordinates(poo.x, poo.y);
+            directions.forEach(dir => {
+                const newX = gridCoords.x + dir.x;
+                const newY = gridCoords.y + dir.y;
+               
+                if (
+                    newX >= 0 &&
+                    newX < mapSize &&
+                    newY >= 0 &&
+                    newY < mapSize &&
+                    !this.grid[newY][newX].object
+                ) {
+                    availableCells.push({ x: newX, y: newY });
+                }
+            });
+        });
+    
+        // Randomly select an available cell for the new poo
+        if (availableCells.length > 0) {
+            const randomIndex = Math.floor(Math.random() * availableCells.length);
+            const newPooCoords = availableCells[randomIndex];
+            this.createPoo(newPooCoords.x, newPooCoords.y);
+            this.grid[newPooCoords.y][newPooCoords.x].object = 'poo';
+        }
+    }
+    
     highlightGrid(x, y) {
         // Clear the previous highlight
         this.grid.forEach(row => {
@@ -101,25 +130,25 @@ class IsoScene extends Phaser.Scene {
                 }
             });
         });
-
+    
         // Add a new highlight
         const highlight = this.add.image(x * tileSize, y * tileSize, 'highlight');
         highlight.setOrigin(0, 0);
         this.grid[y][x].highlight = highlight;
     }
-
+    
     getGridCoordinates(x, y) {
         const gridX = Math.floor(x / tileSize);
         const gridY = Math.floor(y / tileSize);
         return { x: gridX, y: gridY };
-        }
-        }
-        
-        const config = {
-        type: Phaser.AUTO,
-        width: mapSize * tileSize,
-        height: mapSize * tileSize,
-        scene: IsoScene,
-        };
-        
-        const game = new Phaser.Game(config);
+    }
+}
+
+const config = {
+type: Phaser.AUTO,
+width: mapSize * tileSize,
+height: mapSize * tileSize,
+scene: IsoScene,
+};
+
+const game = new Phaser.Game(config);
