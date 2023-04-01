@@ -10,7 +10,13 @@
   ],
   "author": "John Bonewitz & Thomas Wright",
   "license": "Copyright John Bonewitz & Thomas Wright",
+  "scripts": {
+    "start": "parcel index.html"
+  },
   "dependencies": {
     "phaser": "^3.55.2"
+  },
+  "devDependencies": {
+    "parcel": "^2.8.3"
   }
 }
