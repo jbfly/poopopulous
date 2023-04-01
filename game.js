@@ -10,41 +10,66 @@ class IsoScene extends Phaser.Scene {
 
     preload() {
         this.load.image('highlight', 'assets/highlight.png');
+        this.load.audio('pooSound', [
+            'assets/poo.ogg'
+           // 'assets/poo.mp3'
+        ]);
     }
 
     create() {
+        this.input.once('pointerdown', () => {
+            this.sound.context.resume().then(() => {
+                console.log('Audio Context resumed.');
+            });
+        });
         this.isoGroup = this.add.group();
-        // Create a grid of size mapSize x mapSize
         this.grid = this.createGrid(mapSize, mapSize, tileSize);
-    
+        const music = this.sound.add('pooSound');
+        music.play();
+        /* Check if the sound file is loaded successfully
+        if (this.cache.audio.exists('pooSound')) {
+            this.pooSound = this.sound.add('pooSound');
+        }
+    */
+        // Create the start button
+        this.startButton = this.add.text(this.cameras.main.width / 2, this.cameras.main.height / 2, 'Start Game', { fontSize: '32px', color: '#000' });
+        this.startButton.setOrigin(0.5);
+        this.startButton.setInteractive({ useHandCursor: true });
+        this.startButton.on('pointerdown', () => {
+            this.startButton.visible = false; // Hide the start button
+            this.startGame(); // Start the game
+        });
+    }
+
+    startGame() {
+        // Initialize the game state
         this.poos = [];
-        this.spawnRate = 2400; // Adjust spawn rate to make it take about 2 minutes to fill the screen
+        this.spawnRate = 2400;
         this.lastSpawnTime = 0;
-    
-        // Set the starting point for poo spawning as the center of the grid
+
         this.startPoint = {
             x: Math.floor(mapSize / 2),
             y: Math.floor(mapSize / 2)
         };
-    
-        // Add the initial poo at the starting point
+
         this.createPoo(this.startPoint.x, this.startPoint.y, true);
         this.grid[this.startPoint.y][this.startPoint.x].object = 'poo';
-    
-        // Add pointermove event listener to highlight grid cells
+
         this.input.on('pointermove', (pointer) => {
             const { x, y } = this.getGridCoordinates(pointer.x, pointer.y);
             if (x >= 0 && x < mapSize && y >= 0 && y < mapSize) {
                 this.highlightGrid(x, y);
             }
         });
-    }    
+    }
 
     update(time) {
-        // Check if it's time to spawn a new poo
-        if (time > this.lastSpawnTime + this.spawnRate) {
-            this.expandPoo();
-            this.lastSpawnTime = time;
+        // Check if the game has started
+        if (!this.startButton.visible) {
+            if (time > this.lastSpawnTime + this.spawnRate) {
+                this.expandPoo();
+                this.lastSpawnTime = time;
+            }
         }
     }
 
@@ -97,6 +122,9 @@ class IsoScene extends Phaser.Scene {
         };
     
         this.poos.push(poo);
+        if (this.pooSound) {
+            this.pooSound.play();
+        }
     
         // Tween for the falling animation
         this.tweens.add({
@@ -190,6 +218,9 @@ type: Phaser.AUTO,
 width: mapSize * tileSize,
 height: mapSize * tileSize,
 scene: IsoScene,
+audio: {
+    disableWebAudio: true
+}
 };
 
 const game = new Phaser.Game(config);
