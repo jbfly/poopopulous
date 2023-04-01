@@ -16,21 +16,21 @@ class IsoScene extends Phaser.Scene {
         this.isoGroup = this.add.group();
         // Create a grid of size mapSize x mapSize
         this.grid = this.createGrid(mapSize, mapSize, tileSize);
-
+    
         this.poos = [];
         this.spawnRate = 2400; // Adjust spawn rate to make it take about 2 minutes to fill the screen
         this.lastSpawnTime = 0;
-
+    
         // Set the starting point for poo spawning as the center of the grid
         this.startPoint = {
             x: Math.floor(mapSize / 2),
             y: Math.floor(mapSize / 2)
         };
-
+    
         // Add the initial poo at the starting point
-        this.createPoo(this.startPoint.x, this.startPoint.y);
+        this.createPoo(this.startPoint.x, this.startPoint.y, true);
         this.grid[this.startPoint.y][this.startPoint.x].object = 'poo';
-
+    
         // Add pointermove event listener to highlight grid cells
         this.input.on('pointermove', (pointer) => {
             const { x, y } = this.getGridCoordinates(pointer.x, pointer.y);
@@ -38,7 +38,7 @@ class IsoScene extends Phaser.Scene {
                 this.highlightGrid(x, y);
             }
         });
-    }
+    }    
 
     update(time) {
         // Check if it's time to spawn a new poo
@@ -50,12 +50,23 @@ class IsoScene extends Phaser.Scene {
 
     createGrid(rows, cols, size) {
         const grid = [];
+        const offsetX = (mapSize / 2) * tileSize;
         for (let y = 0; y < rows; y++) {
             grid[y] = [];
             for (let x = 0; x < cols; x++) {
-                const tile = this.add.rectangle(x * size, y * size, size, size, 0xffffff, 1);
-                tile.setStrokeStyle(1, 0x000000, 1);
-                tile.setOrigin(0, 0);
+                const isoX = (x - y) * size / 2 + offsetX;
+                const isoY = (x + y) * size / 4;
+                const tile = this.add.graphics();
+                tile.lineStyle(1, 0x000000, 1);
+                tile.fillStyle(0xffffff, 1);
+                tile.beginPath();
+                tile.moveTo(isoX, isoY + size / 4);
+                tile.lineTo(isoX + size / 2, isoY);
+                tile.lineTo(isoX + size, isoY + size / 4);
+                tile.lineTo(isoX + size / 2, isoY + size / 2);
+                tile.closePath();
+                tile.strokePath();
+                tile.fillPath();
                 grid[y][x] = {
                     tile: tile,
                     object: null,
@@ -64,23 +75,47 @@ class IsoScene extends Phaser.Scene {
             }
         }
         return grid;
-    }
+    }         
 
     createPoo(x, y) {
-        const pooTile = this.add.text(x * tileSize, y * tileSize, '💩', { fontSize: '32px' });
-        pooTile.setOrigin(0, 0);
+        const offsetX = (mapSize / 2) * tileSize;
+        const isoX = (x - y) * tileSize / 2 + offsetX;
+        const isoY = (x + y) * tileSize / 4;
+        const centerX = (this.startPoint.x - this.startPoint.y) * tileSize / 2 + offsetX;
+        const centerY = (this.startPoint.x + this.startPoint.y) * tileSize / 4;
+        const pooTile = this.add.text(centerX, -tileSize, '💩', { fontSize: '32px' });
+        pooTile.setOrigin(0.5, 1);
+        pooTile.setScale(0.75);
         this.isoGroup.add(pooTile);
-
+    
         const poo = {
-            x: x * tileSize,
-            y: y * tileSize,
+            x: isoX,
+            y: isoY,
             height: 0,
             speed: 0.5,
             tile: pooTile
         };
-
+    
         this.poos.push(poo);
-    }
+    
+        // Tween for the falling animation
+        this.tweens.add({
+            targets: pooTile,
+            y: centerY,
+            ease: 'Cubic.easeIn',
+            duration: 2000,
+            onComplete: () => {
+                // Tween for the sliding animation
+                this.tweens.add({
+                    targets: pooTile,
+                    x: isoX,
+                    y: isoY,
+                    ease: 'Cubic.easeOut',
+                    duration: 1000
+                });
+            }
+        });
+    }             
 
     expandPoo() {
         // Generate all the possible directions for expansion
@@ -125,23 +160,29 @@ class IsoScene extends Phaser.Scene {
         this.grid.forEach(row => {
             row.forEach(cell => {
                 if (cell.highlight) {
-                    cell.highlight.destroy();
-                    cell.highlight = null;
+                    cell.tile.fillStyle(0xffffff, 1); // Reset fillStyle to the original color
+                    cell.tile.fillPath();
+                    cell.highlight = false;
                 }
             });
         });
     
-        // Add a new highlight
-        const highlight = this.add.image(x * tileSize, y * tileSize, 'highlight');
-        highlight.setOrigin(0, 0);
-        this.grid[y][x].highlight = highlight;
-    }
+        const offsetX = (mapSize / 2) * tileSize;
+        const isoX = (x - y) * tileSize / 2 + offsetX;
+        const isoY = (x + y) * tileSize / 4;
+    
+        // Add a new highlight by changing the fillStyle of the grid cell
+    this.grid[y][x].tile.fillStyle(0x00ff00, 1); // Change the fillStyle to a new color (e.g., green)
+    this.grid[y][x].tile.fillPath();
+    this.grid[y][x].highlight = true;
+    }    
     
     getGridCoordinates(x, y) {
-        const gridX = Math.floor(x / tileSize);
-        const gridY = Math.floor(y / tileSize);
-        return { x: gridX, y: gridY };
-    }
+        const offsetX = (mapSize / 2) * tileSize;
+        const isoX = Math.round((x - offsetX) / tileSize + y / (tileSize / 2));
+        const isoY = Math.round(y / (tileSize / 2) - (x - offsetX) / tileSize);
+        return { x: isoX, y: isoY };
+    }    
 }
 
 const config = {
