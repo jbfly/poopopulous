@@ -53,7 +53,7 @@ class IsoScene extends Phaser.Scene {
         for (let y = 0; y < rows; y++) {
             grid[y] = [];
             for (let x = 0; x < cols; x++) {
-                const tile = this.add.rectangle(x * size, y * size, size, size, 0xffffff, 0);
+                const tile = this.add.rectangle(x * size, y * size, size, size, 0xffffff, 1);
                 tile.setStrokeStyle(1, 0x000000, 1);
                 tile.setOrigin(0, 0);
                 grid[y][x] = {
