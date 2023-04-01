@@ -1,0 +1,16 @@
+{
+  "name": "poopopulous",
+  "version": "1.0.0",
+  "description": "Sewage Simulator / Sewage tycoon type game",
+  "keywords": [
+    "phaser",
+    "game",
+    "sewage",
+    "poo"
+  ],
+  "author": "John Bonewitz & Thomas Wright",
+  "license": "Copyright John Bonewitz & Thomas Wright",
+  "dependencies": {
+    "phaser": "^3.55.2"
+  }
+}
