@@ -1,5 +1,5 @@
 .parcel-cache
 .cache
-.vscode
+.vscode/settings.json
 node_modules
 dump.txt
