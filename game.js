@@ -110,6 +110,7 @@ class IsoScene extends Phaser.Scene {
             ease: 'Cubic.easeIn',
             duration: 2000,
             onComplete: () => {
+                poo.sound.play();
                 // Tween for the sliding animation
                 this.tweens.add({
                     targets: pooTile,
@@ -118,7 +119,7 @@ class IsoScene extends Phaser.Scene {
                     ease: 'Cubic.easeOut',
                     duration: 1000,
                     onComplete: () => {
-                        poo.sound.play();
+                        
                     }
                 });
             }
