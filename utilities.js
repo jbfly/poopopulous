@@ -1,6 +1,6 @@
 //const mapSize = 50;
 
-function createGrid(scene, rows, cols, tileSize, mapSize) {
+export function createGrid(scene, rows, cols, tileSize, mapSize) {
     const grid = [];
     const offsetX = (mapSize / 2) * tileSize;
     for (let y = 0; y < rows; y++) {
@@ -29,11 +29,10 @@ function createGrid(scene, rows, cols, tileSize, mapSize) {
     return grid;
 }    
 
-function getGridCoordinates(x, y, tileSize, mapSize) {
-    const offsetX = (mapSize / 2) * tileSize;
-    const isoX = Math.round((x - offsetX) / tileSize + y / (tileSize / 2));
-    const isoY = Math.round(y / (tileSize / 2) - (x - offsetX) / tileSize);
-    return { x: isoX, y: isoY };
-}  
-
-export { createGrid, getGridCoordinates };
+export function getGridCoordinates(x, y, tileSize, mapSize) {
+    const isoX = (x - (mapSize / 2) * tileSize) / (tileSize / 2);
+    const isoY = y / (tileSize / 4);
+    const gridX = Math.floor((isoX + isoY) / 2);
+    const gridY = Math.floor((isoY - isoX) / 2);
+    return { x: gridX, y: gridY };
+}   
