@@ -19,13 +19,16 @@ class IsoScene extends Phaser.Scene {
 
     create() {
         this.isoGroup = this.add.group();
-        
+
         // Handle window resize
         this.scale.on('resize', (gameSize) => {
         const width = gameSize.width;
         const height = gameSize.height;
         this.cameras.main.setViewport(0, 0, width, height);
-}       );
+        this.adjustInitialZoomAndCenter();
+        });
+
+        this.adjustInitialZoomAndCenter();
 
         this.sound.add('pooSound', poo_sound);
         // Create a grid of size rows x columns
@@ -47,12 +50,37 @@ class IsoScene extends Phaser.Scene {
     
         // Add pointermove event listener to highlight grid cells
         this.input.on('pointermove', (pointer) => {
-            const { x, y } = getGridCoordinates(pointer.x, pointer.y, tileSize, mapSize);
+            const worldPoint = this.cameras.main.getWorldPoint(pointer.x, pointer.y);
+            const { x, y } = getGridCoordinates(worldPoint.x, worldPoint.y, tileSize, mapSize);
             if (x >= 0 && x < mapSize && y >= 0 && y < mapSize) {
                 this.highlightGrid(x, y);
             }
         });
+        // Add these lines to the create() method
+        document.getElementById('zoomInButton').addEventListener('click', () => this.zoomIn());
+        document.getElementById('zoomOutButton').addEventListener('click', () => this.zoomOut());
     }    
+    zoomIn() {
+        const zoom = Math.min(2, this.cameras.main.zoom + 0.1);
+        this.cameras.main.setZoom(zoom);
+    }
+
+    zoomOut() {
+        const zoom = Math.max(0.5, this.cameras.main.zoom - 0.1);
+        this.cameras.main.setZoom(zoom);
+    }
+
+    adjustInitialZoomAndCenter() {
+        const gameWidth = this.scale.width;
+        const gameHeight = this.scale.height;
+
+        const zoomX = gameWidth / (mapSize * tileSize);
+        const zoomY = gameHeight / (mapSize * tileSize);
+        const zoom = Math.min(zoomX, zoomY);
+
+        this.cameras.main.setZoom(zoom);
+        this.cameras.main.centerOn((mapSize * tileSize) / 2, (mapSize * tileSize) / 4);
+    }
 
     update(time) {
         // Check if it's time to spawn a new poo
