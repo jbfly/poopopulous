@@ -19,6 +19,14 @@ class IsoScene extends Phaser.Scene {
 
     create() {
         this.isoGroup = this.add.group();
+        
+        // Handle window resize
+        this.scale.on('resize', (gameSize) => {
+        const width = gameSize.width;
+        const height = gameSize.height;
+        this.cameras.main.setViewport(0, 0, width, height);
+}       );
+
         this.sound.add('pooSound', poo_sound);
         // Create a grid of size rows x columns
         this.grid = createGrid(this, rows, columns, tileSize, mapSize);
