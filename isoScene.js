@@ -53,7 +53,7 @@ class IsoScene extends Phaser.Scene {
             this.lastSpawnTime = time;
         }
     }
-    createPoo(x, y) {
+    createPoo(x, y, isInitialPoo = false) {
         const offsetX = (mapSize / 2) * tileSize;
         const isoX = (x - y) * tileSize / 2 + offsetX;
         const isoY = (x + y) * tileSize / 4;
@@ -85,31 +85,32 @@ class IsoScene extends Phaser.Scene {
             duration: 2000,
             onComplete: () => {
                 poo.sound.play();
-                // Call the pushPoo function instead of sliding the poo
-                this.pushPoo(poo);
+                // Call the pushPoo function only if it's not the initial poo
+                if (!isInitialPoo) {
+                    this.pushPoo(poo);
+                }
             }
         });
     }
     
+    
     // New function to push poos
-    pushPoo(poo) {
+    pushPoo(poo, finalX, finalY) {
         const offsetX = (mapSize / 2) * tileSize;
-        const { x, y } = this.startPoint;
-        const dirX = Math.sign(poo.gridX - x);
-        const dirY = Math.sign(poo.gridY - y);
+    
         let currentPoo = poo;
-
-        // If dirX and dirY are both 0, return early to avoid an infinite loop
-        if (dirX === 0 && dirY === 0) {
-            return;
-        }
-
+    
         // Loop through poos and push them
         while (currentPoo) {
+            // Calculate the direction to push the current poo
+            const dirX = Math.sign(finalX - currentPoo.gridX);
+            const dirY = Math.sign(finalY - currentPoo.gridY);
+    
             const newX = currentPoo.gridX + dirX;
             const newY = currentPoo.gridY + dirY;
+    
             let nextPoo = null;
-
+    
             if (
                 newX >= 0 &&
                 newX < mapSize &&
@@ -118,15 +119,15 @@ class IsoScene extends Phaser.Scene {
             ) {
                 // Find the next poo to push
                 nextPoo = this.poos.find(p => p.gridX === newX && p.gridY === newY);
-
+    
                 // Update the grid data
                 this.grid[currentPoo.gridY][currentPoo.gridX].object = null;
                 this.grid[newY][newX].object = 'poo';
-
+    
                 // Update the current poo's grid coordinates
                 currentPoo.gridX = newX;
                 currentPoo.gridY = newY;
-
+    
                 // Tween for the pushing animation
                 const isoX = (newX - newY) * tileSize / 2 + offsetX;
                 const isoY = (newX + newY) * tileSize / 4;
@@ -141,46 +142,38 @@ class IsoScene extends Phaser.Scene {
                 // Break the loop when the poo reaches the final position
                 break;
             }
-
+    
             currentPoo = nextPoo;
         }
-    }
+    }       
             
     expandPoo() {
-        // Generate all the possible directions for expansion
-        const directions = [
-            { x: -1, y: 0 },
-            { x: 1, y: 0 },
-            { x: 0, y: -1 },
-            { x: 0, y: 1 },
-        ];
-
         // Find available grid cells to expand to
         const availableCells = [];
-        this.poos.forEach(poo => {
-            const gridCoords = getGridCoordinates(poo.x, poo.y, tileSize, mapSize);
-            directions.forEach(dir => {
-                const newX = gridCoords.x + dir.x;
-                const newY = gridCoords.y + dir.y;
-               
-                if (
-                    newX >= 0 &&
-                    newX < mapSize &&
-                    newY >= 0 &&
-                    newY < mapSize &&
-                    !this.grid[newY][newX].object
-                ) {
-                    availableCells.push({ x: newX, y: newY });
+        for (let x = 0; x < mapSize; x++) {
+            for (let y = 0; y < mapSize; y++) {
+                if (!this.grid[y][x].object) {
+                    availableCells.push({ x: x, y: y });
                 }
-            });
-        });
+            }
+        }
     
         // Randomly select an available cell for the new poo
         if (availableCells.length > 0) {
             const randomIndex = Math.floor(Math.random() * availableCells.length);
             const newPooCoords = availableCells[randomIndex];
-            this.createPoo(newPooCoords.x, newPooCoords.y);
-            this.grid[newPooCoords.y][newPooCoords.x].object = 'poo';
+    
+            // Create a new poo at the center
+            this.createPoo(this.startPoint.x, this.startPoint.y);
+    
+            // Find the new poo that was just created
+            const newPoo = this.poos.find(p => p.gridX === this.startPoint.x && p.gridY === this.startPoint.y && !p.pushed);
+    
+            // Mark the new poo as pushed
+            newPoo.pushed = true;
+    
+            // Call the pushPoo function on the new poo with the final position
+            this.pushPoo(newPoo, newPooCoords.x, newPooCoords.y);
         }
     }
     
