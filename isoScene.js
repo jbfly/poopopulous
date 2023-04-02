@@ -67,6 +67,8 @@ class IsoScene extends Phaser.Scene {
         const poo = {
             x: isoX,
             y: isoY,
+            gridX: x,
+            gridY: y,
             height: 0,
             speed: 0.5,
             tile: pooTile,
@@ -83,20 +85,67 @@ class IsoScene extends Phaser.Scene {
             duration: 2000,
             onComplete: () => {
                 poo.sound.play();
-                // Tween for the sliding animation
+                // Call the pushPoo function instead of sliding the poo
+                this.pushPoo(poo);
+            }
+        });
+    }
+    
+    // New function to push poos
+    pushPoo(poo) {
+        const offsetX = (mapSize / 2) * tileSize;
+        const { x, y } = this.startPoint;
+        const dirX = Math.sign(poo.gridX - x);
+        const dirY = Math.sign(poo.gridY - y);
+        let currentPoo = poo;
+
+        // If dirX and dirY are both 0, return early to avoid an infinite loop
+        if (dirX === 0 && dirY === 0) {
+            return;
+        }
+
+        // Loop through poos and push them
+        while (currentPoo) {
+            const newX = currentPoo.gridX + dirX;
+            const newY = currentPoo.gridY + dirY;
+            let nextPoo = null;
+
+            if (
+                newX >= 0 &&
+                newX < mapSize &&
+                newY >= 0 &&
+                newY < mapSize
+            ) {
+                // Find the next poo to push
+                nextPoo = this.poos.find(p => p.gridX === newX && p.gridY === newY);
+
+                // Update the grid data
+                this.grid[currentPoo.gridY][currentPoo.gridX].object = null;
+                this.grid[newY][newX].object = 'poo';
+
+                // Update the current poo's grid coordinates
+                currentPoo.gridX = newX;
+                currentPoo.gridY = newY;
+
+                // Tween for the pushing animation
+                const isoX = (newX - newY) * tileSize / 2 + offsetX;
+                const isoY = (newX + newY) * tileSize / 4;
                 this.tweens.add({
-                    targets: pooTile,
+                    targets: currentPoo.tile,
                     x: isoX,
                     y: isoY,
                     ease: 'Cubic.easeOut',
-                    duration: 1000,
-                    onComplete: () => {
-                        
-                    }
+                    duration: 1000
                 });
+            } else {
+                // Break the loop when the poo reaches the final position
+                break;
             }
-        });
-    }             
+
+            currentPoo = nextPoo;
+        }
+    }
+            
     expandPoo() {
         // Generate all the possible directions for expansion
         const directions = [
