@@ -1,4 +1,6 @@
 import Phaser from 'phaser';
+import poo_sound from './assets/poo.mp3';
+
 
 const tileSize = 38;
 const mapSize = 50;
@@ -10,10 +12,12 @@ class IsoScene extends Phaser.Scene {
 
     preload() {
         this.load.image('highlight', 'assets/highlight.png');
+        this.load.audio('pooSound', poo_sound);
     }
 
     create() {
         this.isoGroup = this.add.group();
+        this.sound.add('pooSound', poo_sound);
         // Create a grid of size mapSize x mapSize
         this.grid = this.createGrid(mapSize, mapSize, tileSize);
     
@@ -93,7 +97,8 @@ class IsoScene extends Phaser.Scene {
             y: isoY,
             height: 0,
             speed: 0.5,
-            tile: pooTile
+            tile: pooTile,
+            sound: this.sound.get('pooSound')
         };
     
         this.poos.push(poo);
@@ -111,7 +116,10 @@ class IsoScene extends Phaser.Scene {
                     x: isoX,
                     y: isoY,
                     ease: 'Cubic.easeOut',
-                    duration: 1000
+                    duration: 1000,
+                    onComplete: () => {
+                        poo.sound.play();
+                    }
                 });
             }
         });
