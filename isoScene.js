@@ -1,15 +1,17 @@
 import Phaser from 'phaser';
 import poo_sound from './assets/poo.mp3';
-
+import { createGrid, getGridCoordinates } from './utilities';
 
 const tileSize = 38;
 const mapSize = 50;
+const rows = mapSize;
+const columns = mapSize;
+const spawnRate = 400; //How often in ms poos will be pooed
 
 class IsoScene extends Phaser.Scene {
     constructor() {
         super({ key: 'IsoScene' });
     }
-
     preload() {
         this.load.image('highlight', 'assets/highlight.png');
         this.load.audio('pooSound', poo_sound);
@@ -18,11 +20,11 @@ class IsoScene extends Phaser.Scene {
     create() {
         this.isoGroup = this.add.group();
         this.sound.add('pooSound', poo_sound);
-        // Create a grid of size mapSize x mapSize
-        this.grid = this.createGrid(mapSize, mapSize, tileSize);
+        // Create a grid of size rows x columns
+        this.grid = createGrid(this, rows, columns, tileSize, mapSize);
     
         this.poos = [];
-        this.spawnRate = 2400; // Adjust spawn rate to make it take about 2 minutes to fill the screen
+        this.spawnRate = spawnRate;
         this.lastSpawnTime = 0;
     
         // Set the starting point for poo spawning as the center of the grid
@@ -32,12 +34,12 @@ class IsoScene extends Phaser.Scene {
         };
     
         // Add the initial poo at the starting point
-        this.createPoo(this.startPoint.x, this.startPoint.y, true);
+        this.createPoo(this.startPoint.x, this.startPoint.y);
         this.grid[this.startPoint.y][this.startPoint.x].object = 'poo';
     
         // Add pointermove event listener to highlight grid cells
         this.input.on('pointermove', (pointer) => {
-            const { x, y } = this.getGridCoordinates(pointer.x, pointer.y);
+            const { x, y } = getGridCoordinates(pointer.x, pointer.y, tileSize, mapSize);
             if (x >= 0 && x < mapSize && y >= 0 && y < mapSize) {
                 this.highlightGrid(x, y);
             }
@@ -51,36 +53,6 @@ class IsoScene extends Phaser.Scene {
             this.lastSpawnTime = time;
         }
     }
-
-    createGrid(rows, cols, size) {
-        const grid = [];
-        const offsetX = (mapSize / 2) * tileSize;
-        for (let y = 0; y < rows; y++) {
-            grid[y] = [];
-            for (let x = 0; x < cols; x++) {
-                const isoX = (x - y) * size / 2 + offsetX;
-                const isoY = (x + y) * size / 4;
-                const tile = this.add.graphics();
-                tile.lineStyle(1, 0x000000, 1);
-                tile.fillStyle(0xffffff, 1);
-                tile.beginPath();
-                tile.moveTo(isoX, isoY + size / 4);
-                tile.lineTo(isoX + size / 2, isoY);
-                tile.lineTo(isoX + size, isoY + size / 4);
-                tile.lineTo(isoX + size / 2, isoY + size / 2);
-                tile.closePath();
-                tile.strokePath();
-                tile.fillPath();
-                grid[y][x] = {
-                    tile: tile,
-                    object: null,
-                    highlight: null
-                };
-            }
-        }
-        return grid;
-    }         
-
     createPoo(x, y) {
         const offsetX = (mapSize / 2) * tileSize;
         const isoX = (x - y) * tileSize / 2 + offsetX;
@@ -125,7 +97,6 @@ class IsoScene extends Phaser.Scene {
             }
         });
     }             
-
     expandPoo() {
         // Generate all the possible directions for expansion
         const directions = [
@@ -138,7 +109,7 @@ class IsoScene extends Phaser.Scene {
         // Find available grid cells to expand to
         const availableCells = [];
         this.poos.forEach(poo => {
-            const gridCoords = this.getGridCoordinates(poo.x, poo.y);
+            const gridCoords = getGridCoordinates(poo.x, poo.y, tileSize, mapSize);
             directions.forEach(dir => {
                 const newX = gridCoords.x + dir.x;
                 const newY = gridCoords.y + dir.y;
@@ -184,21 +155,6 @@ class IsoScene extends Phaser.Scene {
     this.grid[y][x].tile.fillStyle(0x00ff00, 1); // Change the fillStyle to a new color (e.g., green)
     this.grid[y][x].tile.fillPath();
     this.grid[y][x].highlight = true;
-    }    
-    
-    getGridCoordinates(x, y) {
-        const offsetX = (mapSize / 2) * tileSize;
-        const isoX = Math.round((x - offsetX) / tileSize + y / (tileSize / 2));
-        const isoY = Math.round(y / (tileSize / 2) - (x - offsetX) / tileSize);
-        return { x: isoX, y: isoY };
-    }    
+    }   
 }
-
-const config = {
-type: Phaser.AUTO,
-width: mapSize * tileSize,
-height: mapSize * tileSize,
-scene: IsoScene,
-};
-
-const game = new Phaser.Game(config);
+export default IsoScene;
