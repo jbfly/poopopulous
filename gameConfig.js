@@ -5,8 +5,10 @@ const mapSize = 50;
 
 const gameConfig = {
     type: Phaser.AUTO,
-    width: mapSize * tileSize,
-    height: mapSize * tileSize,
+    scale: {
+        mode: Phaser.Scale.RESIZE,
+        autoCenter: Phaser.Scale.CENTER_BOTH,
+    },
     scene: IsoScene,
 };
 

@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import Matter from 'matter-js';
 import poo_sound from './assets/poo.mp3';
+import pipe_png from './assets/mariopipe.png';
 import { createGrid, getGridCoordinates } from './utilities';
 
 const tileSize = 38;
@@ -16,6 +17,7 @@ class IsoScene extends Phaser.Scene {
     preload() {
         this.load.image('highlight', 'assets/highlight.png');
         this.load.audio('pooSound', poo_sound);
+        this.load.image('pipe', pipe_png);
     }
 
     create() {
@@ -45,6 +47,17 @@ class IsoScene extends Phaser.Scene {
         });
 
         this.isoGroup = this.add.group();
+
+        // Handle window resize
+        this.scale.on('resize', (gameSize) => {
+        const width = gameSize.width;
+        const height = gameSize.height;
+        this.cameras.main.setViewport(0, 0, width, height);
+        this.adjustInitialZoomAndCenter();
+        });
+
+        this.adjustInitialZoomAndCenter();
+
         this.sound.add('pooSound', poo_sound);
         // Create a grid of size rows x columns
         this.grid = createGrid(this, rows, columns, tileSize, mapSize, this.matterWorld);
@@ -65,12 +78,64 @@ class IsoScene extends Phaser.Scene {
     
         // Add pointermove event listener to highlight grid cells
         this.input.on('pointermove', (pointer) => {
-            const { x, y } = getGridCoordinates(pointer.x, pointer.y, tileSize, mapSize);
+            const worldPoint = this.cameras.main.getWorldPoint(pointer.x, pointer.y);
+            const { x, y } = getGridCoordinates(worldPoint.x, worldPoint.y, tileSize, mapSize);
             if (x >= 0 && x < mapSize && y >= 0 && y < mapSize) {
                 this.highlightGrid(x, y);
+                if (pointer.isDown && this.selectedTool === 'pipe') { //Pipe placement
+                    this.placePipe(x, y);
             }
-        });
+        }
+    });
+        //Listen for click on the zoom buttons found in the index.html
+        
+        document.getElementById('zoomInButton').addEventListener('click', () => this.zoomIn());
+        document.getElementById('zoomOutButton').addEventListener('click', () => this.zoomOut());
+
+        //Listen for click on pipe button
+        document.getElementById('pipeButton').addEventListener('click', () => this.selectPipeTool());
     }    
+    zoomIn() {
+        const zoom = Math.min(2, this.cameras.main.zoom + 0.1);
+        this.cameras.main.setZoom(zoom);
+    }
+
+    zoomOut() {
+        const zoom = Math.max(0.5, this.cameras.main.zoom - 0.1);
+        this.cameras.main.setZoom(zoom);
+    }
+
+    selectPipeTool() {
+        this.selectedTool = 'pipe';
+        console.log('Pipe tool selected');
+    }
+
+    placePipe(x, y) {
+        if (this.grid[y][x].object) return;
+    
+        const offsetX = (mapSize / 2) * tileSize;
+        const isoX = (x - y) * tileSize / 2 + offsetX;
+        const isoY = (x + y) * tileSize / 4;
+    
+        const pipeSprite = this.add.image(isoX + tileSize / 2, isoY + tileSize / 4 + tileSize / 8, 'pipe');
+        pipeSprite.setOrigin(0.5, 1);
+        pipeSprite.setScale(0.5);
+        this.isoGroup.add(pipeSprite);
+    
+        this.grid[y][x].object = 'pipe';
+    }
+
+    adjustInitialZoomAndCenter() {
+        const gameWidth = this.scale.width;
+        const gameHeight = this.scale.height;
+
+        const zoomX = gameWidth / (mapSize * tileSize);
+        const zoomY = gameHeight / (mapSize * tileSize);
+        const zoom = Math.min(zoomX, zoomY);
+
+        this.cameras.main.setZoom(zoom);
+        this.cameras.main.centerOn((mapSize * tileSize) / 2, (mapSize * tileSize) / 4);
+    }
 
     update(time) {
         // Check if it's time to spawn a new poo
@@ -194,20 +259,26 @@ class IsoScene extends Phaser.Scene {
             row.forEach(cell => {
                 if (cell.highlight) {
                     cell.tile.fillStyle(0xffffff, 1); // Reset fillStyle to the original color
-                    cell.tile.fillPath();
+                    cell.tile.fillPath(); // Call fillPath() after changing the fillStyle
                     cell.highlight = false;
                 }
             });
         });
-    
+            
         const offsetX = (mapSize / 2) * tileSize;
-        const isoX = (x - y) * tileSize / 2 + offsetX;
+        const isoX = (x - y) * tileSize / 2 + offsetX - tileSize / 2;
         const isoY = (x + y) * tileSize / 4;
     
         // Add a new highlight by changing the fillStyle of the grid cell
-    this.grid[y][x].tile.fillStyle(0x00ff00, 1); // Change the fillStyle to a new color (e.g., green)
-    this.grid[y][x].tile.fillPath();
-    this.grid[y][x].highlight = true;
-    }   
+        this.grid[y][x].tile.fillStyle(0x00ff00, 1); // Change the fillStyle to a new color (e.g., green)
+        this.grid[y][x].tile.fillPath();
+        this.grid[y][x].highlight = true;
+    
+        // Set the position of the isoGroup according to the camera
+        const worldPoint = this.cameras.main.getWorldPoint(isoX, isoY);
+        this.isoGroup.x = worldPoint.x - offsetX;
+        this.isoGroup.y = worldPoint.y;
+    }
+    
 }
 export default IsoScene;
