@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import Matter from 'matter-js';
 import poo_sound from './assets/poo.mp3';
 import { createGrid, getGridCoordinates } from './utilities';
 
@@ -18,10 +19,35 @@ class IsoScene extends Phaser.Scene {
     }
 
     create() {
+
+        // Initialize Matter.js engine and world
+        this.matterEngine = Matter.Engine.create();
+        this.matterWorld = this.matterEngine.world;
+
+        // Add custom collision event
+        Matter.Events.on(this.matterEngine, 'collisionStart', (event) => {
+            event.pairs.forEach(pair => {
+                const bodyA = pair.bodyA;
+                const bodyB = pair.bodyB;
+
+                const pooA = this.poos.find(poo => poo.body === bodyA);
+                const pooB = this.poos.find(poo => poo.body === bodyB);
+
+                if (pooA && pooB) {
+                    // Check if the height difference between the poos is small enough
+                    const heightDifference = Math.abs(pooA.z - pooB.z);
+                    if (heightDifference > 1) {
+                        // If the height difference is too large, separate the poos
+                        Matter.SAT.collides(bodyA, bodyB);
+                    }
+                }
+            });
+        });
+
         this.isoGroup = this.add.group();
         this.sound.add('pooSound', poo_sound);
         // Create a grid of size rows x columns
-        this.grid = createGrid(this, rows, columns, tileSize, mapSize);
+        this.grid = createGrid(this, rows, columns, tileSize, mapSize, this.matterWorld);
     
         this.poos = [];
         this.spawnRate = spawnRate;
@@ -52,6 +78,28 @@ class IsoScene extends Phaser.Scene {
             this.expandPoo();
             this.lastSpawnTime = time;
         }
+        
+        // Update the position and height of the poo sprites
+        this.poos.forEach(poo => {
+            if (poo) {
+                const isoCoords = getGridCoordinates(poo.body.position.x, poo.body.position.y, tileSize, mapSize);
+
+                // Check if the isoCoords are within the grid bounds
+                if (isoCoords.x >= 0 && isoCoords.x < mapSize && isoCoords.y >= 0 && isoCoords.y < mapSize) {
+                    const gridCell = this.grid[isoCoords.y][isoCoords.x];
+                    const pooZ = gridCell.height || 0;
+
+                    poo.z = pooZ; // Update the z property based on grid cell height
+
+                    poo.tile.x = (isoCoords.x - isoCoords.y) * tileSize / 2 + (mapSize / 2) * tileSize;
+                    poo.tile.y = (isoCoords.x + isoCoords.y) * tileSize / 4 - pooZ * tileSize / 4; // Adjust y position based on z
+                }
+            }
+        });
+
+        // Update Matter.js engine
+        Matter.Engine.update(this.matterEngine, 1000 / 60);
+
     }
     createPoo(x, y) {
         const offsetX = (mapSize / 2) * tileSize;
@@ -64,13 +112,28 @@ class IsoScene extends Phaser.Scene {
         pooTile.setScale(0.75);
         this.isoGroup.add(pooTile);
     
+        const pooBody = Matter.Bodies.circle(centerX, -tileSize, tileSize / 4, {
+            isStatic: false,
+            friction: 0.5,
+            restitution: 0.3,
+            collisionFilter: {
+                group: 0, // Set the collision group for the poo bodies
+            },
+        });
+        Matter.World.add(this.matterWorld, pooBody);
+
+        const gridCell = this.grid[y][x];
+        const pooZ = gridCell.height || 0;
+        
         const poo = {
             x: isoX,
             y: isoY,
+            z: pooZ, // Add z property for height
             height: 0,
             speed: 0.5,
             tile: pooTile,
-            sound: this.sound.get('pooSound')
+            sound: this.sound.get('pooSound'),
+            body: pooBody, // Add the Matter.js body
         };
     
         this.poos.push(poo);
@@ -83,19 +146,9 @@ class IsoScene extends Phaser.Scene {
             duration: 2000,
             onComplete: () => {
                 poo.sound.play();
-                // Tween for the sliding animation
-                this.tweens.add({
-                    targets: pooTile,
-                    x: isoX,
-                    y: isoY,
-                    ease: 'Cubic.easeOut',
-                    duration: 1000,
-                    onComplete: () => {
-                        
-                    }
-                });
             }
         });
+
     }             
     expandPoo() {
         // Generate all the possible directions for expansion

@@ -1,6 +1,6 @@
-//const mapSize = 50;
+import Matter from 'matter-js';
 
-function createGrid(scene, rows, cols, tileSize, mapSize) {
+function createGrid(scene, rows, cols, tileSize, mapSize, world) {
     const grid = [];
     const offsetX = (mapSize / 2) * tileSize;
     for (let y = 0; y < rows; y++) {
@@ -19,10 +19,26 @@ function createGrid(scene, rows, cols, tileSize, mapSize) {
             tile.closePath();
             tile.strokePath();
             tile.fillPath();
+
+            // Create a static Matter.js body for the grid cell
+            const gridBody = Matter.Bodies.rectangle(isoX, isoY, tileSize, tileSize, {
+                isStatic: true,
+                friction: 0,
+                frictionStatic: 0,
+                frictionAir: 0,
+                collisionFilter: {
+                    group: -1, // Exclude grid bodies from colliding with each other
+                },
+            });
+
+            // Add the grid body to the world
+            Matter.World.add(world, gridBody);
+
             grid[y][x] = {
                 tile: tile,
                 object: null,
-                highlight: null
+                highlight: null,
+                body: gridBody, // Add the Matter.js body to the grid cell
             };
         }
     }
