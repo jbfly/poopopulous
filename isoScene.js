@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import poo_sound from './assets/poo.mp3';
 import pipe_png from './assets/mariopipe.png';
+import poo_png from './assets/poo.png';
 import { createGrid, getGridCoordinates } from './utilities';
 
 const tileSize = 38;
@@ -17,11 +18,14 @@ class IsoScene extends Phaser.Scene {
         this.load.image('highlight', 'assets/highlight.png');
         this.load.audio('pooSound', poo_sound);
         this.load.image('pipe', pipe_png);
+        this.load.image('poo', poo_png); // Load the poo texture
     }
 
     create() {
         this.isoGroup = this.add.group();
-
+        // Add ground in the middle of the grid
+        this.createGround();
+ 
         // Handle window resize
         this.scale.on('resize', (gameSize) => {
         const width = gameSize.width;
@@ -114,55 +118,74 @@ class IsoScene extends Phaser.Scene {
     update(time) {
         // Check if it's time to spawn a new poo
         if (time > this.lastSpawnTime + this.spawnRate) {
-            this.expandPoo();
+            this.createPoo(this.startPoint.x, this.startPoint.y);
             this.lastSpawnTime = time;
         }
     }
+
+    createGround() {
+        const groundX = (mapSize / 2) * tileSize;
+        const groundY = (mapSize / 4) * tileSize;
+        const groundWidth = mapSize * tileSize;
+        const groundHeight = 10;
+    
+        this.ground = this.physics.add.staticGroup();
+        const groundBody = this.ground.create(groundX, groundY, null);
+        groundBody.setSize(groundWidth, groundHeight);
+        groundBody.setOffset(-groundWidth / 2, -groundHeight / 2);
+        groundBody.setVisible(false); // Hide the ground, so it's not visible in the game
+    }
+
     createPoo(x, y) {
         const offsetX = (mapSize / 2) * tileSize;
         const isoX = (x - y) * tileSize / 2 + offsetX;
         const isoY = (x + y) * tileSize / 4;
         const centerX = (this.startPoint.x - this.startPoint.y) * tileSize / 2 + offsetX;
         const centerY = (this.startPoint.x + this.startPoint.y) * tileSize / 4;
-        const pooTile = this.add.text(centerX, -tileSize, '💩', { fontSize: '32px' });
+      
+        const pooTile = this.physics.add.sprite(centerX, 0, 'poo'); // Create the sprite with physics a Set initial y position to 0 (top of the screen)
+        pooTile.setVelocity(Phaser.Math.Between(-10, 10), 0); // Give random initial velocity in x direction
+        pooTile.setAngularVelocity(Phaser.Math.Between(-100, 100)); // Give random initial angular velocity for rotation
+
         pooTile.setOrigin(0.5, 1);
         pooTile.setScale(0.75);
+        pooTile.setBounce(0.1); // Make the poo bounce a little
+        pooTile.setCollideWorldBounds(true); // Make the poo collide with the world bounds
         this.isoGroup.add(pooTile);
-    
+      
         const poo = {
-            x: isoX,
-            y: isoY,
-            height: 0,
-            speed: 0.5,
-            tile: pooTile,
-            sound: this.sound.get('pooSound')
+          x: isoX,
+          y: isoY,
+          height: 0,
+          speed: 0.5,
+          tile: pooTile,
+          sound: this.sound.get('pooSound')
         };
-    
+      
         this.poos.push(poo);
-    
-        // Tween for the falling animation
+      
+        // Make the poo collide with the ground
+        this.physics.add.collider(pooTile, this.ground);
+
+        // Make the poo collide with other poos
+        this.physics.add.collider(pooTile, this.poos.map(p => p.tile));
+      
+        poo.sound.play();
+      
+        /* // Tween for the sliding animation
         this.tweens.add({
-            targets: pooTile,
-            y: centerY,
-            ease: 'Cubic.easeIn',
-            duration: 2000,
-            onComplete: () => {
-                poo.sound.play();
-                // Tween for the sliding animation
-                this.tweens.add({
-                    targets: pooTile,
-                    x: isoX,
-                    y: isoY,
-                    ease: 'Cubic.easeOut',
-                    duration: 1000,
-                    onComplete: () => {
-                        
-                    }
-                });
-            }
-        });
-    }             
-    expandPoo() {
+          targets: pooTile,
+          x: isoX,
+          y: isoY,
+          ease: 'Cubic.easeOut',
+          duration: 1000,
+          onComplete: () => {
+      
+          }
+        }); */
+      }
+    
+    /* expandPoo() {
         // Generate all the possible directions for expansion
         const directions = [
             { x: -1, y: 0 },
@@ -188,10 +211,10 @@ class IsoScene extends Phaser.Scene {
                 ) {
                     availableCells.push({ x: newX, y: newY });
                 }
-            });
-        });
+   /*          });
+        }); */
     
-        // Randomly select an available cell for the new poo
+       /*  // Randomly select an available cell for the new poo
         if (availableCells.length > 0) {
             const randomIndex = Math.floor(Math.random() * availableCells.length);
             const newPooCoords = availableCells[randomIndex];
@@ -199,7 +222,7 @@ class IsoScene extends Phaser.Scene {
             this.grid[newPooCoords.y][newPooCoords.x].object = 'poo';
         }
     }
-    
+     */ 
     highlightGrid(x, y) {
         // Clear the previous highlight
         this.grid.forEach(row => {
