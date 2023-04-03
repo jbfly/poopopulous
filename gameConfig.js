@@ -10,6 +10,14 @@ const gameConfig = {
         autoCenter: Phaser.Scale.CENTER_BOTH,
     },
     scene: IsoScene,
+
+    physics: {
+        default: 'arcade',
+        arcade: {
+            gravity: { y: 300 },
+            debug: false,
+        },
+    },
 };
 
 export default gameConfig;
