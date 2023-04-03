@@ -147,7 +147,7 @@ class IsoScene extends Phaser.Scene {
     update(time) {
         // Check if it's time to spawn a new poo
         if (time > this.lastSpawnTime + this.spawnRate) {
-            this.expandPoo();
+            this.dropPoo(); // Call the new dropPoo() function instead of expandPoo()
             this.lastSpawnTime = time;
         }
         
@@ -193,10 +193,10 @@ class IsoScene extends Phaser.Scene {
         });
     }
     
-    createPoo(x, y) {
+    createPoo(x, y, offsetY = 0) {
         const offsetX = (mapSize / 2) * tileSize;
         const isoX = (x - y) * tileSize / 2 + offsetX;
-        const isoY = (x + y) * tileSize / 4;
+        const isoY = (x + y) * tileSize / 4 - offsetY; // Subtract offsetY from isoY
         const centerX = (this.startPoint.x - this.startPoint.y) * tileSize / 2 + offsetX;
         const centerY = (this.startPoint.x + this.startPoint.y) * tileSize / 4;
         const pooTile = this.add.text(centerX, centerY - tileSize, '💩', { fontSize: '32px' });
@@ -241,47 +241,26 @@ class IsoScene extends Phaser.Scene {
         };
     
         this.poos.push(poo);
+    }
     
-        // Add a slight delay before the Matter.js body is added to the world
-        /*this.time.delayedCall(200, () => {
-            Matter.World.add(this.matterWorld, pooBody);
-        });*/
-    }    
-              
-    expandPoo() {
-        // Generate all the possible directions for expansion
-        const directions = [
-            { x: -1, y: 0 },
-            { x: 1, y: 0 },
-            { x: 0, y: -1 },
-            { x: 0, y: 1 },
-        ];
-
-        // Find available grid cells to expand to
+    // New dropPoo function
+    dropPoo() {
         const availableCells = [];
-        this.poos.forEach(poo => {
-            const gridCoords = getGridCoordinates(poo.x, poo.y, tileSize, mapSize);
-            directions.forEach(dir => {
-                const newX = gridCoords.x + dir.x;
-                const newY = gridCoords.y + dir.y;
-               
-                if (
-                    newX >= 0 &&
-                    newX < mapSize &&
-                    newY >= 0 &&
-                    newY < mapSize &&
-                    !this.grid[newY][newX].object
-                ) {
-                    availableCells.push({ x: newX, y: newY });
-                }
-            });
-        });
-    
+
+        // Find all empty cells in the top row of the grid
+        for (let x = 0; x < mapSize; x++) {
+            if (!this.grid[0][x].object) {
+                availableCells.push({ x: x, y: 0 });
+            }
+        }
+
         // Randomly select an available cell for the new poo
         if (availableCells.length > 0) {
             const randomIndex = Math.floor(Math.random() * availableCells.length);
             const newPooCoords = availableCells[randomIndex];
-            this.createPoo(newPooCoords.x, newPooCoords.y);
+
+            // Create a poo at the selected cell with an additional vertical offset (tileSize * 4)
+            this.createPoo(newPooCoords.x, newPooCoords.y, tileSize * 4);
             this.grid[newPooCoords.y][newPooCoords.x].object = 'poo';
         }
     }
