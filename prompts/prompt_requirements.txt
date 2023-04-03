@@ -1,0 +1,24 @@
+Please generate a well-commented, British sarcastic and pun-filled game code for a 2.5D isometric game called Poopopulous, with the following files:
+
+index.html
+main.js
+styles.css
+package.json
+assets folder with poo.mp3
+The game should have the following features:
+
+The dynamic object is the text poo emoji 💩, not an image file.
+The game uses a sound called poo.mp3 that plays each time a new poo spawns.
+PhaserJS is used as the game engine.
+enable3D is integrated with PhaserJS for the 3D physics engine.
+The sprites are not rendered in 3D.
+The game is 2.5D isometric with 3D physics projected onto the isometric world.
+The assets are imported as modules, for example:
+import poo_sound from './assets/poo.mp3';
+this.load.audio('pooSound', poo_sound);
+The poo starts from a height above the ground and falls to the grid.
+One poo spawns every 400 ms.
+The ground shows a grid structure.
+The ground has height variations, similar to SimCity 2000.
+
+Include instructions for setting up the project with npm and Parcel as the build tool. Ensure that the code is filled with tons of poo puns and British smarmy sarcasm, but remains helpful for someone trying to read and understand it.
