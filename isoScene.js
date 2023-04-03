@@ -25,26 +25,33 @@ class IsoScene extends Phaser.Scene {
         // Initialize Matter.js engine and world
         this.matterEngine = Matter.Engine.create();
         this.matterWorld = this.matterEngine.world;
+        this.matterWorld.gravity.scale = 0.01;
+
 
         // Add custom collision event
         Matter.Events.on(this.matterEngine, 'collisionStart', (event) => {
             event.pairs.forEach(pair => {
                 const bodyA = pair.bodyA;
                 const bodyB = pair.bodyB;
-
-                const pooA = this.poos.find(poo => poo.body === bodyA);
-                const pooB = this.poos.find(poo => poo.body === bodyB);
-
-                if (pooA && pooB) {
-                    // Check if the height difference between the poos is small enough
-                    const heightDifference = Math.abs(pooA.z - pooB.z);
-                    if (heightDifference > 1) {
-                        // If the height difference is too large, separate the poos
-                        Matter.SAT.collides(bodyA, bodyB);
+        
+                // Ensure that both bodies exist before trying to find the corresponding poo
+                if (bodyA && bodyB) {
+                    const pooA = this.poos.find(poo => poo.body === bodyA);
+                    const pooB = this.poos.find(poo => poo.body === bodyB);
+        
+                    // Ensure that both poos exist before trying to access their properties
+                    if (pooA && pooB) {
+                        // Check if the height difference between the poos is small enough
+                        const heightDifference = Math.abs(pooA.z - pooB.z);
+                        if (heightDifference > 1) {
+                            // If the height difference is too large, separate the poos
+                            Matter.SAT.collides(bodyA, bodyB);
+                        }
                     }
                 }
             });
         });
+        
 
         this.isoGroup = this.add.group();
 
@@ -148,36 +155,56 @@ class IsoScene extends Phaser.Scene {
         this.poos.forEach(poo => {
             if (poo) {
                 const isoCoords = getGridCoordinates(poo.body.position.x, poo.body.position.y, tileSize, mapSize);
-
+    
                 // Check if the isoCoords are within the grid bounds
                 if (isoCoords.x >= 0 && isoCoords.x < mapSize && isoCoords.y >= 0 && isoCoords.y < mapSize) {
                     const gridCell = this.grid[isoCoords.y][isoCoords.x];
                     const pooZ = gridCell.height || 0;
-
+    
                     poo.z = pooZ; // Update the z property based on grid cell height
-
-                    poo.tile.x = (isoCoords.x - isoCoords.y) * tileSize / 2 + (mapSize / 2) * tileSize;
-                    poo.tile.y = (isoCoords.x + isoCoords.y) * tileSize / 4 - pooZ * tileSize / 4; // Adjust y position based on z
+    
+                    const gridCoords = getGridCoordinates(poo.body.position.x, poo.body.position.y, tileSize, mapSize);
+                    const isoX = (gridCoords.x - gridCoords.y) * tileSize / 2 + (mapSize / 2) * tileSize;
+                    const isoY = (gridCoords.x + gridCoords.y) * tileSize / 4 - pooZ * tileSize / 4;
+                    poo.tile.x = isoX;
+                    poo.tile.y = isoY;
                 }
             }
         });
-
+    
         // Update Matter.js engine
         Matter.Engine.update(this.matterEngine, 1000 / 60);
-
+    
+        // Add this part to update the poo positions based on their Matter.js bodies' positions
+        for (let i = 0; i < this.poos.length; i++) {
+            const poo = this.poos[i];
+            const bodyPosition = poo.body.position;
+            poo.tile.x = bodyPosition.x;
+            poo.tile.y = bodyPosition.y;
+        }
+    
+        // Update the height text
+        this.poos.forEach(poo => {
+            if (poo) {
+                poo.heightText.x = poo.tile.x;
+                poo.heightText.y = poo.tile.y - poo.z * tileSize / 4 - tileSize / 4;
+                poo.heightText.text = `${poo.height}`;
+            }
+        });
     }
+    
     createPoo(x, y) {
         const offsetX = (mapSize / 2) * tileSize;
         const isoX = (x - y) * tileSize / 2 + offsetX;
         const isoY = (x + y) * tileSize / 4;
         const centerX = (this.startPoint.x - this.startPoint.y) * tileSize / 2 + offsetX;
         const centerY = (this.startPoint.x + this.startPoint.y) * tileSize / 4;
-        const pooTile = this.add.text(centerX, -tileSize, '💩', { fontSize: '32px' });
+        const pooTile = this.add.text(centerX, centerY - tileSize, '💩', { fontSize: '32px' });
         pooTile.setOrigin(0.5, 1);
         pooTile.setScale(0.75);
         this.isoGroup.add(pooTile);
     
-        const pooBody = Matter.Bodies.circle(centerX, -tileSize, tileSize / 4, {
+        const pooBody = Matter.Bodies.circle(centerX, centerY - tileSize, tileSize / 4, {
             isStatic: false,
             friction: 0.5,
             restitution: 0.3,
@@ -186,35 +213,41 @@ class IsoScene extends Phaser.Scene {
             },
         });
         Matter.World.add(this.matterWorld, pooBody);
-
+         Matter.Body.setVelocity(pooBody, { x: 0, y: 5 }); // Set the initial velocity of the spawned poo
+    
         const gridCell = this.grid[y][x];
         const pooZ = gridCell.height || 0;
+
+        const pooHeightText = this.add.text(centerX, centerY - tileSize, `1`, {
+            fontSize: '18px',
+            fontWeight: 'bold',
+            color: '#000000',
+            stroke: '#ffffff',
+            strokeThickness: 4,
+        });
+        pooHeightText.setOrigin(0.5, 1);
+        this.isoGroup.add(pooHeightText);
         
         const poo = {
             x: isoX,
             y: isoY,
             z: pooZ, // Add z property for height
-            height: 0,
+            height: 1,
             speed: 0.5,
             tile: pooTile,
+            heightText: pooHeightText,
             sound: this.sound.get('pooSound'),
             body: pooBody, // Add the Matter.js body
         };
     
         this.poos.push(poo);
     
-        // Tween for the falling animation
-        this.tweens.add({
-            targets: pooTile,
-            y: centerY,
-            ease: 'Cubic.easeIn',
-            duration: 2000,
-            onComplete: () => {
-                poo.sound.play();
-            }
-        });
-
-    }             
+        // Add a slight delay before the Matter.js body is added to the world
+        /*this.time.delayedCall(200, () => {
+            Matter.World.add(this.matterWorld, pooBody);
+        });*/
+    }    
+              
     expandPoo() {
         // Generate all the possible directions for expansion
         const directions = [

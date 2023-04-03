@@ -1,6 +1,6 @@
 Model: GPT-4
 
-> I'm making a video game. This will be called poopopulous. It will be a sewage simulator in the style of rollercoaster tycon and sim city. I am using phaser js THis is the game.js code:
+> I'm making a video game. This will be called poopopulous. It will be a sewage simulator in the style of rollercoaster tycoon and sim city. I am using phaser js This is the game.js code:
 > 
 > 1 / 1
 
