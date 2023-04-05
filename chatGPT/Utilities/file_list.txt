@@ -1,0 +1,4 @@
+path/to/file1.cs
+path/to/folder1
+path/to/file2.cs
+path/to/folder2
