@@ -1,0 +1,13 @@
+I'm making a video game. This will be called poopopulous. It will be a sewage simulator in the style of rollercoaster tycon and sim city. I am using phaser js
+THis is the game.js code: <include code here>
+
+
+
+
+
+-- server stuff
+/* my server is an arch Linux server running apache. I would like to get this running on it and use github to keep the server in sync with my local matching 
+and allow for collaboration. I want all changes to be updated live and appear on the server. The files should be at /srv/http/poo 
+
+I already have an apache server running. I have my server accessible at bonewitz.net I did what you said and cloneed the github repo into a folder called poo. 
+I want the game to be accessible at bonewitz.net/poo 
