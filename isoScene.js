@@ -33,16 +33,24 @@ class IsoScene extends Phaser.Scene {
             event.pairs.forEach(pair => {
                 const bodyA = pair.bodyA;
                 const bodyB = pair.bodyB;
-        
-                // Ensure that both bodies exist before trying to find the corresponding poo
-                if (bodyA && bodyB) {
-                    const pooA = this.poos.find(poo => poo.body === bodyA);
+
+                // Check if bodyA is a poo and bodyB is a grid cell
+                const pooA = this.poos.find(poo => poo.body === bodyA);
+                const gridCellB = this.grid.flat().find(cell => cell.body === bodyB);
+
+                if (pooA && gridCellB) {
+                    const heightDifference = Math.abs(pooA.z - gridCellB.height);
+                    if (heightDifference > 1) {
+                        // If the height difference is too large, separate the poos
+                        Matter.SAT.collides(bodyA, bodyB);
+                    }
+                } else {
+                    // Check if bodyB is a poo and bodyA is a grid cell
                     const pooB = this.poos.find(poo => poo.body === bodyB);
-        
-                    // Ensure that both poos exist before trying to access their properties
-                    if (pooA && pooB) {
-                        // Check if the height difference between the poos is small enough
-                        const heightDifference = Math.abs(pooA.z - pooB.z);
+                    const gridCellA = this.grid.flat().find(cell => cell.body === bodyA);
+
+                    if (pooB && gridCellA) {
+                        const heightDifference = Math.abs(pooB.z - gridCellA.height);
                         if (heightDifference > 1) {
                             // If the height difference is too large, separate the poos
                             Matter.SAT.collides(bodyA, bodyB);
