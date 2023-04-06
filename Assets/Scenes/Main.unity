@@ -283,7 +283,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 402222014}
   m_LocalRotation: {x: 0.09904577, y: 0.89239913, z: -0.23911765, w: 0.3696438}
-  m_LocalPosition: {x: -1, y: 1, z: 1}
+  m_LocalPosition: {x: -0.5, y: 0.5, z: 0.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -325,7 +325,7 @@ Camera:
   far clip plane: 10000
   field of view: 57.144623
   orthographic: 1
-  orthographic size: 100
+  orthographic size: 50
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
@@ -701,8 +701,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36f694f0f77ef358e9f65af62516536e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poopPrefab: {fileID: 6980808457764774314, guid: c87078909bc8fc7588373ea88a09850d, type: 3}
-  spawnInterval: 2
+  poopPrefab: {fileID: 7787947052371297642, guid: 7ebfd9d72b75ef0e8928a31b6a211dd6, type: 3}
+  spawnInterval: 0.5
   pooSound: {fileID: 8300000, guid: 152894eb750394db19209f104a50e759, type: 3}
 --- !u!4 &1498997211
 Transform:
