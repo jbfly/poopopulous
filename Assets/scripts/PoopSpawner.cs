@@ -8,6 +8,14 @@ public class PoopSpawner : MonoBehaviour
     public float spawnInterval = 1f;
     private float timeSinceLastSpawn;
 
+    public AudioClip pooSound;
+    private AudioSource audioSource;
+
+    void Start()
+    {
+        audioSource = GetComponent<AudioSource>();
+    }
+
     void Update()
     {
         timeSinceLastSpawn += Time.deltaTime;
@@ -19,12 +27,13 @@ public class PoopSpawner : MonoBehaviour
         }
     }
 
-   void SpawnPoop()
-{
-    float xPos = Random.Range(-5f, 5f);
-    float yPos = 1f; // Change this value according to the height you want the poop to spawn at
-    float zPos = Random.Range(-5f, 5f);
-    Vector3 spawnPosition = new Vector3(xPos, yPos, zPos);
-    Instantiate(poopPrefab, transform.position + spawnPosition, Quaternion.identity);
-}
+    void SpawnPoop()
+    {
+        float xPos = Random.Range(-5f, 5f);
+        float yPos = 1f; // Change this value according to the height you want the poop to spawn at
+        float zPos = Random.Range(-5f, 5f);
+        Vector3 spawnPosition = new Vector3(xPos, yPos, zPos);
+        Instantiate(poopPrefab, transform.position + spawnPosition, Quaternion.identity);
+        audioSource.PlayOneShot(pooSound);
+    }
 }
