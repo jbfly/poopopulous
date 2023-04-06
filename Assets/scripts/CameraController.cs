@@ -1,10 +1,10 @@
+using System.Collections;
 using UnityEngine;
 
 public class CameraController : MonoBehaviour
 {
     public float panSpeed = 20f;
     public float zoomSpeed = 20f;
-    public float rotationSpeed = 90f;
 
     private Camera cam;
 
@@ -14,33 +14,65 @@ public class CameraController : MonoBehaviour
     }
 
     void Update()
-{
-    // Zoom
-    float scrollInput = Input.GetAxis("Mouse ScrollWheel");
-    cam.orthographicSize = Mathf.Clamp(cam.orthographicSize - scrollInput * zoomSpeed * Time.deltaTime, 1f, 100f);
-
-    // Pan
-    float horizontal = Input.GetAxis("Horizontal");
-    float vertical = Input.GetAxis("Vertical");
-
-    // Negate the vertical input to reverse up/down panning
-    Vector3 panMovement = new Vector3(horizontal, 0, vertical) * panSpeed * Time.deltaTime;
-
-    // Rotate panMovement by 135 degrees around the Y-axis
-    panMovement = Quaternion.Euler(0, 135, 0) * panMovement;
-
-    transform.Translate(panMovement, Space.World);
-
-    // Rotate
-    if (Input.GetKey(KeyCode.Q))
     {
-        transform.Rotate(Vector3.up, rotationSpeed * Time.deltaTime, Space.World);
+        // Zoom
+        float scrollInput = Input.GetAxis("Mouse ScrollWheel");
+        cam.orthographicSize = Mathf.Clamp(cam.orthographicSize - scrollInput * zoomSpeed * Time.deltaTime, 1f, 100f);
+
+        // Pan
+        float horizontal = Input.GetAxis("Horizontal");
+        float vertical = Input.GetAxis("Vertical");
+
+        // Negate the vertical input to reverse up/down panning
+        Vector3 panMovement = new Vector3(horizontal, 0, vertical) * panSpeed * Time.deltaTime;
+
+        // Rotate panMovement by 135 degrees around the Y-axis
+        panMovement = Quaternion.Euler(0, 135, 0) * panMovement;
+
+        transform.Translate(panMovement, Space.World);
+
+        // Rotate
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            RotateCameraAroundViewportCenter(90f);
+        }
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            RotateCameraAroundViewportCenter(-90f);
+        }
     }
-    if (Input.GetKey(KeyCode.E))
+
+void RotateCameraAroundViewportCenter(float targetRotation)
+{
+    // Create a layer mask for the ground plane
+    int groundLayerMask = 1 << LayerMask.NameToLayer("Ground");
+
+    // Raycast from the camera's viewport center to the ground plane
+    Ray ray = cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
+    RaycastHit hit;
+
+    // Check if the raycast hits the ground plane using the layer mask
+    if (Physics.Raycast(ray, out hit, Mathf.Infinity, groundLayerMask))
     {
-        transform.Rotate(Vector3.up, -rotationSpeed * Time.deltaTime, Space.World);
+        // Use the hit point on the ground plane as the pivot point
+        Vector3 pivotPoint = hit.point;
+
+        // Compute the relative position of the camera to the pivot point
+        Vector3 relativePosition = transform.position - pivotPoint;
+
+        // Rotate the relative position by the target rotation
+        relativePosition = Quaternion.Euler(0, targetRotation, 0) * relativePosition;
+
+        // Update the camera's position by adding the rotated relative position back to the pivot point
+        transform.position = pivotPoint + relativePosition;
+
+        // Rotate the camera itself
+        transform.Rotate(Vector3.up, targetRotation, Space.World);
     }
 }
+
+
+
 
 
 

@@ -29,9 +29,9 @@ public class PoopSpawner : MonoBehaviour
 
     void SpawnPoop()
     {
-        float xPos = Random.Range(-5f, 5f);
+        float xPos = Random.Range(-.1f, .1f);
         float yPos = 1f; // Change this value according to the height you want the poop to spawn at
-        float zPos = Random.Range(-5f, 5f);
+        float zPos = Random.Range(-.1f, .1f);
         Vector3 spawnPosition = new Vector3(xPos, yPos, zPos);
         Instantiate(poopPrefab, transform.position + spawnPosition, Quaternion.identity);
         audioSource.PlayOneShot(pooSound);
