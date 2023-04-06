@@ -268,6 +268,7 @@ GameObject:
   - component: {fileID: 402222015}
   - component: {fileID: 402222017}
   - component: {fileID: 402222016}
+  - component: {fileID: 402222018}
   m_Layer: 0
   m_Name: Isometric Camera
   m_TagString: MainCamera
@@ -341,6 +342,21 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
+--- !u!114 &402222018
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 402222014}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d15ad404aa424bfb198bc488961a875c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  panSpeed: 100
+  zoomSpeed: 500
+  rotationSpeed: 90
 --- !u!1 &412269538
 GameObject:
   m_ObjectHideFlags: 0
