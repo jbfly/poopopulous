@@ -493,7 +493,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   panSpeed: 10
-  zoomSpeed: 10
+  zoomSpeed: 100
 --- !u!1 &412269538
 GameObject:
   m_ObjectHideFlags: 0
@@ -631,66 +631,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 412269538}
   m_CullTransparentMesh: 1
---- !u!1 &426068413
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 426068416}
-  - component: {fileID: 426068415}
-  - component: {fileID: 426068414}
-  m_Layer: 0
-  m_Name: ConeCollider
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!136 &426068414
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 426068413}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  m_Radius: 3
-  m_Height: 15
-  m_Direction: 1
-  m_Center: {x: 0, y: 5, z: 0}
---- !u!65 &426068415
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 426068413}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 21, y: 5, z: 21}
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!4 &426068416
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 426068413}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.012399999, y: 0.0344, z: -0.0366}
-  m_LocalScale: {x: 0.01, y: 0.01, z: 0.01}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 7
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &717984116
 GameObject:
   m_ObjectHideFlags: 0
@@ -964,7 +904,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36f694f0f77ef358e9f65af62516536e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poopPrefab: {fileID: 3615944205429776813, guid: ddb95452e077634fa917f6ea777497c5, type: 3}
+  poopPrefab: {fileID: 7787947052371297642, guid: 7ebfd9d72b75ef0e8928a31b6a211dd6, type: 3}
   spawnInterval: 0.5
   pooSound: {fileID: 8300000, guid: 152894eb750394db19209f104a50e759, type: 3}
 --- !u!4 &1498997211

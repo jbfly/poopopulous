@@ -17,7 +17,7 @@ public class CameraController : MonoBehaviour
     {
         // Zoom
         float scrollInput = Input.GetAxis("Mouse ScrollWheel");
-        cam.orthographicSize = Mathf.Clamp(cam.orthographicSize - scrollInput * zoomSpeed * Time.deltaTime, 1f, 100f);
+        cam.orthographicSize = Mathf.Clamp(cam.orthographicSize - scrollInput * zoomSpeed * Time.deltaTime, .1f, 100f);
 
         // Pan
         float horizontal = Input.GetAxis("Horizontal");
