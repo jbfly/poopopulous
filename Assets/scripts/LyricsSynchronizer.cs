@@ -3,6 +3,7 @@ using TMPro;
 using System.Collections;
 using System.IO;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 public class LyricsSynchronizer : MonoBehaviour
 {
@@ -37,14 +38,27 @@ public class LyricsSynchronizer : MonoBehaviour
         string[] lines = lyricsFile.text.Split('\n');
         for (int i = 0; i < lines.Length; i++)
         {
-            // Parse the timestamp and store it
-            string[] parts = lines[i].Split(' ');
-            float timestamp;
-            if (float.TryParse(parts[0], out timestamp))
+            if (lines[i].StartsWith("Dialogue:"))
             {
-                lineTimestamps.Add(timestamp);
-                string lyricsLineText = string.Join(" ", parts, 1, parts.Length - 1);
+                string[] parts = lines[i].Split(',');
 
+                // Parse the timestamp in "hours:minutes:seconds.milliseconds" format
+                string[] timeParts = parts[1].Split(':');
+                float hours = float.Parse(timeParts[0]);
+                float minutes = float.Parse(timeParts[1]);
+                float seconds = float.Parse(timeParts[2]);
+                float timestamp = hours * 3600 + minutes * 60 + seconds;
+
+                // Add the timestamp to the list
+                lineTimestamps.Add(timestamp);
+
+                // Get the lyrics line text
+                string lyricsLineText = parts[9].Trim();
+
+                // Remove formatting tags (like "{\k30}") from the text
+                lyricsLineText = Regex.Replace(lyricsLineText, @"\{[^}]*\}", "");
+
+                // Create a lyrics line
                 TextMeshProUGUI lyricsLine = CreateLyricsLine();
                 lyricsLine.text = lyricsLineText;
                 lyricsLines.Add(lyricsLine);
