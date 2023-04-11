@@ -5,7 +5,7 @@ using UnityEngine;
 public class PoopSpawner : MonoBehaviour
 {
     public GameObject poopPrefab;
-    public float spawnInterval = 1f;
+    public float spawnInterval = 0.95f;
     private float timeSinceLastSpawn;
 
     public AudioClip pooSound;
