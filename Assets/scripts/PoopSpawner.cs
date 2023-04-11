@@ -28,18 +28,19 @@ public class PoopSpawner : MonoBehaviour
     }
 
     void SpawnPoop()
-{
-    float xPos = Random.Range(-.1f, .1f);
-    float yPos = 1f;
-    float zPos = Random.Range(-.1f, .1f);
-    Vector3 spawnPosition = new Vector3(xPos, yPos, zPos);
-    GameObject spawnedObject = Instantiate(poopPrefab, transform.position + spawnPosition, Quaternion.identity);
-    audioSource.PlayOneShot(pooSound);
+    {
+        timeSinceLastSpawn = 0f; // Reset the timeSinceLastSpawn variable at the beginning of the method
+        float xPos = Random.Range(-.1f, .1f);
+        float yPos = 1f;
+        float zPos = Random.Range(-.1f, .1f);
+        Vector3 spawnPosition = new Vector3(xPos, yPos, zPos);
+        GameObject spawnedObject = Instantiate(poopPrefab, transform.position + spawnPosition, Quaternion.identity);
+        audioSource.PlayOneShot(pooSound);
 
-    // Debug lines
-    Collider spawnedCollider = spawnedObject.GetComponent<Collider>();
-    Debug.Log("Spawned object collider: " + spawnedCollider);
-    Debug.Log("Spawned object collider enabled: " + spawnedCollider.enabled);
-}
+        // Debug lines
+        Collider spawnedCollider = spawnedObject.GetComponent<Collider>();
+        Debug.Log("Spawned object collider: " + spawnedCollider);
+        Debug.Log("Spawned object collider enabled: " + spawnedCollider.enabled);
+    }
 
 }
