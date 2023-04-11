@@ -17,6 +17,7 @@ public class LyricsSynchronizer : MonoBehaviour
 
     private AudioSource audioSource;
     private List<TextMeshProUGUI> lyricsLines = new List<TextMeshProUGUI>();
+    private List<float> lineEndTimestamps = new List<float>();
 
     private void Start()
     {
@@ -42,18 +43,26 @@ public class LyricsSynchronizer : MonoBehaviour
             {
                 string[] parts = lines[i].Split(',');
 
-                // Parse the timestamp in "hours:minutes:seconds.milliseconds" format
-                string[] timeParts = parts[1].Split(':');
-                float hours = float.Parse(timeParts[0]);
-                float minutes = float.Parse(timeParts[1]);
-                float seconds = float.Parse(timeParts[2]);
-                float timestamp = hours * 3600 + minutes * 60 + seconds;
+                // Parse the start timestamp
+                string[] startTimeParts = parts[1].Split(':');
+                float startHours = float.Parse(startTimeParts[0]);
+                float startMinutes = float.Parse(startTimeParts[1]);
+                float startSeconds = float.Parse(startTimeParts[2]);
+                float startTimestamp = startHours * 3600 + startMinutes * 60 + startSeconds;
 
-                // Add the timestamp to the list
-                lineTimestamps.Add(timestamp);
+                // Parse the end timestamp
+                string[] endTimeParts = parts[2].Split(':');
+                float endHours = float.Parse(endTimeParts[0]);
+                float endMinutes = float.Parse(endTimeParts[1]);
+                float endSeconds = float.Parse(endTimeParts[2]);
+                float endTimestamp = endHours * 3600 + endMinutes * 60 + endSeconds;
+
+                // Add the start and end timestamps to the lists
+                lineTimestamps.Add(startTimestamp);
+                lineEndTimestamps.Add(endTimestamp);
 
                 // Get the lyrics line text
-                string lyricsLineText = parts[9].Trim();
+                string lyricsLineText = Regex.Match(lines[i], @"(?<=^[^,]*(?:,[^,]*){8},).*$").Value.Trim();
 
                 // Remove formatting tags (like "{\k30}") from the text
                 lyricsLineText = Regex.Replace(lyricsLineText, @"\{[^}]*\}", "");
@@ -99,28 +108,32 @@ public class LyricsSynchronizer : MonoBehaviour
 
     private IEnumerator SyncLyrics()
     {
+        int currentLineIndex = 0;
+
+        // Initially, hide all the lines
+        foreach (TextMeshProUGUI line in lyricsLines)
+        {
+            line.gameObject.SetActive(false);
+        }
+
         while (audioSource.isPlaying)
         {
             float currentTime = audioSource.time;
 
-            // Determine which line to display
-            int currentLineIndex = 0;
-            for (int i = 0; i < lineTimestamps.Count; i++)
+            // Display the lines when their start times are reached
+            if (currentLineIndex < lineTimestamps.Count && currentTime >= lineTimestamps[currentLineIndex])
             {
-                if (currentTime >= lineTimestamps[i])
-                {
-                    currentLineIndex = i;
-                }
-                else
-                {
-                    break;
-                }
+                lyricsLines[currentLineIndex].gameObject.SetActive(true);
+                currentLineIndex++;
             }
 
-            // Display the current line and hide the others
-            for (int i = 0; i < lyricsLines.Count; i++)
+            // Hide the lines when their end times are reached
+            for (int i = 0; i < currentLineIndex; i++)
             {
-                lyricsLines[i].gameObject.SetActive(i == currentLineIndex);
+                if (currentTime >= lineEndTimestamps[i] && lyricsLines[i].gameObject.activeSelf)
+                {
+                    lyricsLines[i].gameObject.SetActive(false);
+                }
             }
 
             yield return null;
