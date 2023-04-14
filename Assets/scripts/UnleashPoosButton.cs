@@ -14,18 +14,21 @@ public class UnleashPoosButton : MonoBehaviour
     }
 
     void ToggleUnleashThePoos()
-    {
-        isUnleashed = !isUnleashed;
+{
+    isUnleashed = !isUnleashed;
 
-        if (isUnleashed)
-        {
-            poopSpawner.spawnInterval = 0f;
-            button.GetComponentInChildren<Text>().text = "Calm the Poos!";
-        }
-        else
-        {
-            poopSpawner.spawnInterval = 0.95f;
-            button.GetComponentInChildren<Text>().text = "Unleash the Poos!";
-        }
+    // Comment out the lines below to simplify the script
+    
+    if (isUnleashed)
+    {
+        poopSpawner.spawnInterval = 0f;
+      //  button.GetComponentInChildren<Text>().text = "Calm the Poos!";
     }
+    else
+    {
+        poopSpawner.spawnInterval = 0.95f;
+     //   button.GetComponentInChildren<Text>().text = "Unleash the Poos!";
+    }
+    
+}
 }
