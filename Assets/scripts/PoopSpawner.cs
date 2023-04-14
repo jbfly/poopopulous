@@ -38,9 +38,9 @@ public class PoopSpawner : MonoBehaviour
         audioSource.PlayOneShot(pooSound);
 
         // Debug lines
-        Collider spawnedCollider = spawnedObject.GetComponent<Collider>();
-        Debug.Log("Spawned object collider: " + spawnedCollider);
-        Debug.Log("Spawned object collider enabled: " + spawnedCollider.enabled);
+       // Collider spawnedCollider = spawnedObject.GetComponent<Collider>();
+      //  Debug.Log("Spawned object collider: " + spawnedCollider);
+     //   Debug.Log("Spawned object collider enabled: " + spawnedCollider.enabled);
     }
 
 }

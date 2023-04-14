@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: -5967044269150557203}
   - component: {fileID: 3958537936997217487}
   - component: {fileID: -7545335533945323919}
+  - component: {fileID: 6460670011889364369}
   m_Layer: 0
   m_Name: LOD_emoji_poop
   m_TagString: Untagged
@@ -163,6 +164,19 @@ SphereCollider:
   serializedVersion: 2
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &6460670011889364369
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3615944205429776813}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d80ae75d87d0731ea98e934cf9eadb8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  disableTime: 5
 --- !u!1001 &4032581802955385109
 PrefabInstance:
   m_ObjectHideFlags: 0
