@@ -3,7 +3,9 @@ guid: 36f694f0f77ef358e9f65af62516536e
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - poopPrefab: {instanceID: 0}
+  - pooSound: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

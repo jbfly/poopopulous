@@ -904,8 +904,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36f694f0f77ef358e9f65af62516536e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poopPrefab: {fileID: 7787947052371297642, guid: 7ebfd9d72b75ef0e8928a31b6a211dd6, type: 3}
-  spawnInterval: 0.5
+  poopPrefab: {fileID: 3615944205429776813, guid: ddb95452e077634fa917f6ea777497c5, type: 3}
+  spawnInterval: 0.95
   pooSound: {fileID: 8300000, guid: 152894eb750394db19209f104a50e759, type: 3}
 --- !u!4 &1498997211
 Transform:
@@ -1029,7 +1029,7 @@ GameObject:
   - component: {fileID: 1536782893}
   - component: {fileID: 1536782896}
   - component: {fileID: 1536782895}
-  - component: {fileID: 1536782894}
+  - component: {fileID: 1536782897}
   m_Layer: 3
   m_Name: Plane
   m_TagString: Untagged
@@ -1052,20 +1052,6 @@ Transform:
   m_Father: {fileID: 290403233}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!64 &1536782894
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1536782892}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 4
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!23 &1536782895
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1116,3 +1102,16 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1536782892}
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!65 &1536782897
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1536782892}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 10, y: 2.220446e-16, z: 10}
+  m_Center: {x: 0, y: 0, z: 0}
