@@ -19,7 +19,7 @@ public class ChatManager : MonoBehaviour
     }
     else
     {
-        Debug.LogError("SendButton is not assigned in the ChatManager script.");
+    //    Debug.LogError("SendButton is not assigned in the ChatManager script.");
     }
 }
     private void SendMessage()
@@ -36,14 +36,11 @@ public class ChatManager : MonoBehaviour
         }));
     }
 
-    private string ParseResponse(string response)
-{   
-    // Implement a parser to extract the generated message from the response JSON.
-    // This example uses the SimpleJSON library for parsing. You can find it at:
-    // https://github.com/Bunny83/SimpleJSON
+private string ParseResponse(string response)
+{
     var jsonResponse = SimpleJSON.JSON.Parse(response);
-    string generatedMessage = jsonResponse["choices"][0]["text"].Value.Trim();
+    string generatedMessage = jsonResponse["choices"][0]["message"]["content"].Value.Trim(); // Update this line to get the "content" field
+    Debug.Log("Parsed response: " + generatedMessage); // Print the parsed response
     return generatedMessage;
 }
-
 }
