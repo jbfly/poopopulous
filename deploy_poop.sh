@@ -1,4 +1,5 @@
 #!/bin/bash
+##Script to push poopopulous to bonewitz.net
 
 # Set variables
 LOCAL_PATH="$HOME/git/poopopulous/WebGLBuild"
