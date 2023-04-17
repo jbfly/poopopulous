@@ -6,9 +6,14 @@ using System.Text.RegularExpressions;
 
 public class LyricsSynchronizer : MonoBehaviour
 {
+    //Set these two in the Lyrics Synchronizer object thingy to run through Karaoke debugging
+    public bool karaokeDebug;
+    public int startFromLine;
+
     public RectTransform lyricsParent;
     public AudioClip audioClip;
-    public string lyricsFileName = "Never-Gonna-Poop-You-Up-Lyrics";
+    //public string lyricsFileName = "Never-Gonna-Poop-You-Up";
+    public TextAsset lyricsFile;
     public Color normalTextColor = Color.black;
     public Color highlightedTextColor = Color.yellow;
 
@@ -45,6 +50,21 @@ public class LyricsSynchronizer : MonoBehaviour
         audioSource.clip = audioClip;
         audioSource.Play();
 
+        StartCoroutine(WaitForAudioToStart());
+    }
+
+    private IEnumerator WaitForAudioToStart()
+    {
+        while (!audioSource.isPlaying)
+        {
+            yield return null;
+        }
+
+        if (karaokeDebug && startFromLine < lineTimestamps.Count)
+        {
+            audioSource.time = lineTimestamps[startFromLine];
+        }
+
         StartCoroutine(SyncLyrics());
     }
 
@@ -52,7 +72,7 @@ public class LyricsSynchronizer : MonoBehaviour
 
     private void LoadLyrics()
     {
-        TextAsset lyricsFile = Resources.Load<TextAsset>(lyricsFileName);
+        //TextAsset lyricsFile = Resources.Load<TextAsset>(lyricsFileName);
         string[] lines = lyricsFile.text.Split('\n');
         for (int i = 0; i < lines.Length; i++)
         {
@@ -252,6 +272,11 @@ public class LyricsSynchronizer : MonoBehaviour
     {
         int currentLineIndex = 0;
 
+        if (karaokeDebug)
+        {
+            currentLineIndex = startFromLine;
+        }
+
         // Initially, hide all the words
         foreach (List<LyricWord> words in lyricsLines)
         {
@@ -294,6 +319,7 @@ public class LyricsSynchronizer : MonoBehaviour
             yield return null;
         }
     }
+
 
     private IEnumerator HighlightWord(LyricWord word)
     {

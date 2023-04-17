@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.1757885, g: 0.21997492, b: 0.30230388, a: 1}
+  m_IndirectSpecularColor: {r: 0.17578828, g: 0.21997473, b: 0.30230343, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -755,12 +755,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 798aee34f1d3870429a8b9ae511bd20d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  karaokeDebug: 1
+  startFromLine: 30
   lyricsParent: {fileID: 375263448}
-  poopEmoji: {fileID: 0}
   audioClip: {fileID: 8300000, guid: 6f7802d04622e2544a7513a3b140865b, type: 3}
-  lineDelays: []
-  wordDelay: 0
-  lyricsFileName: Never-Gonna-Poop-You-Up-Lyrics
+  lyricsFile: {fileID: 9027929339269108002, guid: c0c17d764ec19b44083c6cfac7ab868a, type: 3}
+  normalTextColor: {r: 0, g: 0, b: 0, a: 1}
+  highlightedTextColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
 --- !u!4 &960038407
 Transform:
   m_ObjectHideFlags: 0
