@@ -12,7 +12,6 @@ public class LyricsSynchronizer : MonoBehaviour
 
     public RectTransform lyricsParent;
     public AudioClip audioClip;
-    //public string lyricsFileName = "Never-Gonna-Poop-You-Up";
     public TextAsset lyricsFile;
     public Color normalTextColor = Color.black;
     public Color highlightedTextColor = Color.yellow;
@@ -23,6 +22,9 @@ public class LyricsSynchronizer : MonoBehaviour
 
     private float maxLineWidth;
 
+    private const float SpaceBetweenWords = 20f;
+    private const float SpaceBetweenLines = 30f;
+
     private class LyricWord
     {
         public TextMeshProUGUI text;
@@ -32,7 +34,8 @@ public class LyricsSynchronizer : MonoBehaviour
 
     private float GetLineWidth(bool isKaraokeLine)
     {
-        return isKaraokeLine ? Screen.width * 2.0f : Screen.width;
+        return isKaraokeLine ? Screen.width * 0.5f : Screen.width;
+        //return Screen.width;
     }
 
     private void Start()
@@ -72,7 +75,6 @@ public class LyricsSynchronizer : MonoBehaviour
 
     private void LoadLyrics()
     {
-        //TextAsset lyricsFile = Resources.Load<TextAsset>(lyricsFileName);
         string[] lines = lyricsFile.text.Split('\n');
         for (int i = 0; i < lines.Length; i++)
         {
@@ -142,6 +144,7 @@ public class LyricsSynchronizer : MonoBehaviour
         TextMeshProUGUI tempText = CreateTextObject("", Vector2.zero, false);
         float currentXPosition = 0;
         float currentYPosition = 0;
+        float currentLineWidth = 0; // Keep track of the current line width
 
         float scaleFactor = 2.0f; // Same scale factor as in CreateTextObject()
 
@@ -155,17 +158,27 @@ public class LyricsSynchronizer : MonoBehaviour
             float wordWidth = tempText.preferredWidth * scaleFactor; // Apply the scale factor
 
             // Check if there's enough room left on the current line
-            if (currentXPosition + wordWidth > maxLineWidth)
+            if (currentXPosition + wordWidth + SpaceBetweenWords > maxLineWidth)
             {
+                // Calculate the left padding for the current line
+                float leftPadding = (Screen.width - currentLineWidth) / 2;
+
+                // Update the anchor position for the words in the current line with the new left padding
+                foreach (LyricWord existingWord in words)
+                {
+                    Vector2 anchorPosition = existingWord.text.rectTransform.anchoredPosition;
+
+                    if (anchorPosition.y == currentYPosition) // Only update the words in the current line
+                    {
+                        anchorPosition.x += leftPadding;
+                        existingWord.text.rectTransform.anchoredPosition = anchorPosition;
+                    }
+                }
+
                 // Move to the next line
                 currentXPosition = 0;
-                if(!isKaraokeLine){
-                    currentYPosition -= tempText.preferredHeight + 10; // Add a small space between the lines
-                }
-                else{
-                    currentYPosition -= tempText.preferredHeight * 1.5f + 10; // Add a small space between the lines
-                }
-                
+                currentYPosition -= tempText.preferredHeight + SpaceBetweenLines; // Add space between the lines
+                currentLineWidth = 0; // Reset the current line width
             }
 
             // Create the word object with the calculated anchor position
@@ -179,34 +192,29 @@ public class LyricsSynchronizer : MonoBehaviour
             // Add the word to the list of words
             words.Add(word);
 
-            // Update the current time and X position
+            // Update the current time, X position, and current line width
             currentTime += wordDuration;
-            currentXPosition += wordWidth;
+            currentXPosition += wordWidth + SpaceBetweenWords; // Add the word width and space between the words to the current line width
+            currentLineWidth += wordWidth + SpaceBetweenWords;
+        }
 
-            // Add a small space between the words
-            currentXPosition += 10;
+        // Calculate the left padding for the last line
+        float lastLineLeftPadding = (Screen.width - currentLineWidth) / 2;
+
+        // Update the anchor position for the words in the last line with the new left padding
+        foreach (LyricWord existingWord in words)
+        {
+            Vector2 anchorPosition = existingWord.text.rectTransform.anchoredPosition;
+
+            if (anchorPosition.y == currentYPosition) // Only update the words in the last line
+            {
+                anchorPosition.x += lastLineLeftPadding;
+                existingWord.text.rectTransform.anchoredPosition = anchorPosition;
+            }
         }
 
         // Destroy the temporary TextMeshProUGUI object
         Destroy(tempText.gameObject);
-
-        // Calculate the total width of the line
-        float lineWidth = CalculateLineWidth(words, scaleFactor);
-
-        // Calculate the left padding for each word
-        float leftPadding = (maxLineWidth - lineWidth) / 2;
-        if(isKaraokeLine)
-        {
-            leftPadding = Screen.width * 1.25f;// / 2;
-        }
-
-        // Update the anchor position for each word with the new left padding
-        foreach (LyricWord word in words)
-        {
-            Vector2 anchorPosition = word.text.rectTransform.anchoredPosition;
-            anchorPosition.x += leftPadding;
-            word.text.rectTransform.anchoredPosition = anchorPosition;
-        }
 
         return words;
     }
@@ -214,11 +222,31 @@ public class LyricsSynchronizer : MonoBehaviour
     private float CalculateLineWidth(List<LyricWord> words, float scaleFactor)
     {
         float totalWidth = 0;
+        float maxLineWidth = 0;
+        int wordCount = 0;
+
         foreach (LyricWord word in words)
         {
-            totalWidth += word.text.preferredWidth * scaleFactor;
+            float wordWidth = word.text.preferredWidth * scaleFactor; // Apply the scale factor
+
+            if (totalWidth + wordWidth + SpaceBetweenWords > maxLineWidth)
+            {
+                maxLineWidth = totalWidth; // Save the width of the longest line
+                totalWidth = 0; // Reset the total width for the new line
+                wordCount = 0; // Reset the word count for the new line
+            }
+
+            totalWidth += wordWidth + (wordCount > 0 ? SpaceBetweenWords : 0);
+            wordCount++;
         }
-        return totalWidth;
+
+        // Check if the last line is longer than the previously saved maxLineWidth
+        if (totalWidth > maxLineWidth)
+        {
+            maxLineWidth = totalWidth;
+        }
+
+        return maxLineWidth;
     }
 
     private TextMeshProUGUI CreateTextObject(string wordText, Vector2 anchorPosition, bool isKaraokeLine)
