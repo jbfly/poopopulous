@@ -25,9 +25,14 @@ public class LyricsSynchronizer : MonoBehaviour
         public float endTime;
     }
 
+    private float GetLineWidth(bool isKaraokeLine)
+    {
+        return isKaraokeLine ? Screen.width * 2.0f : Screen.width;
+    }
+
     private void Start()
     {
-        maxLineWidth = Screen.width;
+        maxLineWidth = GetLineWidth(false);
 
         lyricsParent.anchorMin = lyricsParent.anchorMax = new Vector2(0.5f, 0.5f);
         lyricsParent.pivot = new Vector2(0.5f, 0.5f);
@@ -111,6 +116,7 @@ public class LyricsSynchronizer : MonoBehaviour
         MatchCollection wordMatches = Regex.Matches(inputText, @"\{\\k(\d+)\}([^{]+)");
 
         float currentTime = startTime;
+        maxLineWidth = GetLineWidth(isKaraokeLine);
 
         // Add a temporary TextMeshProUGUI object to measure the text width
         TextMeshProUGUI tempText = CreateTextObject("", Vector2.zero, false);
@@ -133,7 +139,13 @@ public class LyricsSynchronizer : MonoBehaviour
             {
                 // Move to the next line
                 currentXPosition = 0;
-                currentYPosition -= tempText.preferredHeight + 10; // Add a small space between the lines
+                if(!isKaraokeLine){
+                    currentYPosition -= tempText.preferredHeight + 10; // Add a small space between the lines
+                }
+                else{
+                    currentYPosition -= tempText.preferredHeight * 1.5f + 10; // Add a small space between the lines
+                }
+                
             }
 
             // Create the word object with the calculated anchor position
@@ -163,6 +175,10 @@ public class LyricsSynchronizer : MonoBehaviour
 
         // Calculate the left padding for each word
         float leftPadding = (maxLineWidth - lineWidth) / 2;
+        if(isKaraokeLine)
+        {
+            leftPadding = Screen.width * 1.25f;// / 2;
+        }
 
         // Update the anchor position for each word with the new left padding
         foreach (LyricWord word in words)
@@ -194,7 +210,7 @@ public class LyricsSynchronizer : MonoBehaviour
         // Set the text properties (font, size, color, etc.) here
 
         // Set the maxLineWidth here
-        float maxLineWidth = Screen.width;
+        maxLineWidth = GetLineWidth(isKaraokeLine);
         
         // Adjust the size of the RectTransform
         RectTransform rectTransform = text.GetComponent<RectTransform>();
