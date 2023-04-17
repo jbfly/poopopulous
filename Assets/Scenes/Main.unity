@@ -755,8 +755,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 798aee34f1d3870429a8b9ae511bd20d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  karaokeDebug: 1
-  startFromLine: 30
+  karaokeDebug: 0
+  startFromLine: 0
   lyricsParent: {fileID: 375263448}
   audioClip: {fileID: 8300000, guid: 6f7802d04622e2544a7513a3b140865b, type: 3}
   lyricsFile: {fileID: 9027929339269108002, guid: c0c17d764ec19b44083c6cfac7ab868a, type: 3}
