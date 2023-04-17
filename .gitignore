@@ -74,5 +74,5 @@ crashlytics-build.properties
 
 
 # Don't share API Key
-APIKey.asset
-
+#APIKey.asset
+#APIKey.asset.meta
