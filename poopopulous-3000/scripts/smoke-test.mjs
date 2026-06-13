@@ -2,7 +2,9 @@
 // screenshots of the pile, the unleash mode, and karaoke mode.
 import puppeteer from 'puppeteer-core';
 
-const URL = process.env.GAME_URL ?? 'http://localhost:5199/';
+// Defaults to Vite's dev-server port (`npm run dev`). Override with GAME_URL
+// to test a `npm run preview` build or the live site.
+const URL = process.env.GAME_URL ?? 'http://localhost:5173/';
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 const browser = await puppeteer.launch({
