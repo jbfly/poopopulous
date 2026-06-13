@@ -43,6 +43,8 @@ piling, the karaoke, the plop sounds — rescued from the Unity project and
 running in a browser with no engine install required. The name is a nod to
 SimCity 3000, the game's spiritual grandparent.
 
+**Play it:** [bonewitz.net/poopopulous-3000](https://bonewitz.net/poopopulous-3000/)
+
 ```sh
 cd poopopulous-3000
 npm install
