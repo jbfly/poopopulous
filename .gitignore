@@ -76,3 +76,7 @@ crashlytics-build.properties
 # Don't share API Key
 #APIKey.asset
 #APIKey.asset.meta
+
+# Poopopulous 3000 (web)
+poopopulous-3000/node_modules/
+poopopulous-3000/dist/
