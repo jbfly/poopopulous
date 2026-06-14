@@ -5,7 +5,7 @@ import { createAudio } from './audio.js';
 import { createKaraoke } from './karaoke.js';
 
 const NORMAL_INTERVAL = 950;   // ms between poos, same cadence as 2.0
-const UNLEASHED_INTERVAL = 45; // "Let Loose the Poos of War!"
+const UNLEASHED_INTERVAL = 16; // v2's zero-interval unleash: one turd per frame
 
 const world = createWorld(document.getElementById('app'));
 const physics = await createPhysics();
@@ -13,13 +13,14 @@ const audio = createAudio();
 const karaoke = createKaraoke();
 
 const counterEl = document.getElementById('counter');
+let unleashed = false;
+
 const poops = await createPoops(world.scene, physics, {
-  onSpawn: () => audio.plop(),
+  onSpawn: () => audio.plop({ storm: unleashed }),
   onCount: (n) => { counterEl.textContent = `💩 × ${n.toLocaleString()}`; },
 });
 
 // --- UI ---
-let unleashed = false;
 const unleashBtn = document.getElementById('unleashBtn');
 unleashBtn.addEventListener('click', () => {
   unleashed = !unleashed;
