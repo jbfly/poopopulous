@@ -16,6 +16,7 @@ const counterEl = document.getElementById('counter');
 let unleashed = false;
 
 const poops = await createPoops(world.scene, physics, {
+  camera: world.camera,
   onSpawn: () => audio.plop({ storm: unleashed }),
   onCount: (n) => { counterEl.textContent = `💩 × ${n.toLocaleString()}`; },
 });
@@ -57,7 +58,8 @@ function loop(now) {
   lastTime = now;
 
   const interval = unleashed ? UNLEASHED_INTERVAL : NORMAL_INTERVAL;
-  if (now - lastSpawn >= interval) {
+  const onKaraokeBeat = !unleashed && karaoke.consumeBeat();
+  if (onKaraokeBeat || (!karaoke.playing && now - lastSpawn >= interval) || (unleashed && now - lastSpawn >= interval)) {
     poops.spawn();
     lastSpawn = now;
   }
@@ -68,9 +70,9 @@ function loop(now) {
     accumulator -= PHYSICS_DT;
   }
 
-  poops.update();
-  karaoke.update();
   world.controls.update();
+  poops.update(world.camera);
+  karaoke.update();
   world.renderer.render(world.scene, world.camera);
 }
 

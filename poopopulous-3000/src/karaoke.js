@@ -2,6 +2,10 @@
 // Parses the original Aegisub .ass file with per-word {\kNN} timing
 // (centiseconds) and highlights words in sync with the song.
 
+const BEAT_BPM = 113;
+const BEAT_INTERVAL = 60 / BEAT_BPM;
+const BEAT_OFFSET = 0.08;
+
 function parseAssTime(t) {
   const [h, m, s] = t.split(':');
   return Number(h) * 3600 + Number(m) * 60 + Number(s);
@@ -38,6 +42,15 @@ export function createKaraoke() {
 
   let lines = null;
   let playing = false;
+  let lastBeat = -1;
+
+  function beatIndexAt(t) {
+    return Math.floor((t - BEAT_OFFSET) / BEAT_INTERVAL);
+  }
+
+  function armBeatClock(t = song.currentTime) {
+    lastBeat = beatIndexAt(t);
+  }
 
   async function ensureLyrics() {
     if (lines) return;
@@ -49,6 +62,7 @@ export function createKaraoke() {
     await ensureLyrics();
     container.style.display = 'block';
     song.currentTime = 0;
+    armBeatClock(0);
     await song.play();
     playing = true;
   }
@@ -57,6 +71,14 @@ export function createKaraoke() {
     song.pause();
     playing = false;
     container.style.display = 'none';
+  }
+
+  function consumeBeat() {
+    if (!playing || song.currentTime < BEAT_OFFSET) return false;
+    const beat = beatIndexAt(song.currentTime);
+    if (beat <= lastBeat) return false;
+    lastBeat = beat;
+    return true;
   }
 
   function update() {
@@ -80,8 +102,8 @@ export function createKaraoke() {
   }
 
   return {
-    start, stop, update,
-    seek(t) { song.currentTime = t; },
+    start, stop, update, consumeBeat,
+    seek(t) { song.currentTime = t; armBeatClock(t); },
     get playing() { return playing; },
   };
 }
