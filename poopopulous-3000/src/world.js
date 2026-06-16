@@ -45,6 +45,8 @@ export function createWorld(container) {
   scene.add(sun);
 
   const half = (GRID_SIZE * TILE_SIZE) / 2;
+  const splashGroup = new THREE.Group();
+  scene.add(splashGroup);
 
   const ground = new THREE.Mesh(
     new THREE.BoxGeometry(GRID_SIZE * TILE_SIZE, 1, GRID_SIZE * TILE_SIZE),
@@ -52,11 +54,11 @@ export function createWorld(container) {
   );
   ground.position.y = -0.5;
   ground.receiveShadow = true;
-  scene.add(ground);
+  splashGroup.add(ground);
 
   const grid = new THREE.GridHelper(GRID_SIZE * TILE_SIZE, GRID_SIZE, 0x33502a, 0x4f7240);
   grid.position.y = 0.005;
-  scene.add(grid);
+  splashGroup.add(grid);
 
   // Hover highlight tile
   const highlight = new THREE.Mesh(
@@ -66,11 +68,16 @@ export function createWorld(container) {
   highlight.rotation.x = -Math.PI / 2;
   highlight.position.y = 0.01;
   highlight.visible = false;
-  scene.add(highlight);
+  splashGroup.add(highlight);
 
   const raycaster = new THREE.Raycaster();
   const pointer = new THREE.Vector2();
   window.addEventListener('pointermove', (e) => {
+    if (!splashGroup.visible) {
+      highlight.visible = false;
+      return;
+    }
+
     pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
     pointer.y = -(e.clientY / window.innerHeight) * 2 + 1;
     raycaster.setFromCamera(pointer, camera);
@@ -101,5 +108,19 @@ export function createWorld(container) {
   document.getElementById('zoomInButton').addEventListener('click', () => zoomBy(1.2));
   document.getElementById('zoomOutButton').addEventListener('click', () => zoomBy(1 / 1.2));
 
-  return { scene, camera, renderer, controls };
+  function setSplashVisible(visible) {
+    splashGroup.visible = visible;
+    if (!visible) highlight.visible = false;
+  }
+
+  function setCameraHome({ position = [20, 20, 20], target = [0, 0, 0], zoom = 1 } = {}) {
+    camera.position.set(...position);
+    controls.target.set(...target);
+    camera.zoom = zoom;
+    camera.lookAt(controls.target);
+    camera.updateProjectionMatrix();
+    controls.update();
+  }
+
+  return { scene, splashGroup, camera, renderer, controls, setSplashVisible, setCameraHome };
 }
