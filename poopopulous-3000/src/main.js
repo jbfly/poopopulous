@@ -57,6 +57,7 @@ async function switchMode(next) {
       world,
       physics,
       audio,
+      karaoke,
       setCounter,
       onUnleashChange: syncUnleashButton,
     });
