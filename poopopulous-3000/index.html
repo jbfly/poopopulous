@@ -49,6 +49,7 @@
     }
     .btn:hover { background: #6d4c41; }
     .btn.active { background: #a1887f; border-color: #ffd24a; }
+    .hidden { display: none; }
 
     #zoom {
       position: fixed;
@@ -94,6 +95,9 @@
   <div id="hud">
     <h1>POOPOPULOUS 3000 <small>est. 2023</small></h1>
     <div id="counter">💩 × 0</div>
+    <button id="startLevelBtn" class="btn">🚽 Start Level 1</button>
+    <button id="backBtn" class="btn hidden">← Back to Splash</button>
+    <button id="regenBtn" class="btn hidden">🔁 Regenerate Level</button>
     <button id="unleashBtn" class="btn">🌊 Unleash the Poos!</button>
     <button id="karaokeBtn" class="btn">🎤 Karaoke Mode</button>
     <button id="muteBtn" class="btn">🔊 Sound On</button>
